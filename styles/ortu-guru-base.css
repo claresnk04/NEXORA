@@ -1,0 +1,43 @@
+:root{
+  --nex-navy:#0f1035;
+  --nex-blue:#185FA5;
+  --nex-teal:#0a5e49;
+  --nex-gold:#f5a623;
+  --nex-bg:#f0f4f8;
+  --nex-surface:#ffffff;
+  --nex-border:rgba(0,0,0,0.07);
+  --nex-shadow:0 2px 16px rgba(15,16,53,0.07);
+  --nex-radius:14px;
+}
+
+/* Shared logo + header fit (avoid crop) */
+.nex-brand{
+  display:flex;align-items:center;gap:10px;min-width:0;
+}
+.nex-brand-logo{
+  width:42px;height:42px;
+  border-radius:14px;
+  background:linear-gradient(135deg,var(--nex-gold),#e8940f);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 24px rgba(0,0,0,0.18);
+  flex-shrink:0;
+  overflow:hidden;
+}
+.nex-brand-logo img{
+  width:100%;height:100%;object-fit:contain;object-position:center;
+  display:block;
+}
+.nex-brand-text{
+  color:#fff;font-size:18px;font-weight:900;letter-spacing:.3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.nex-brand-text em{color:var(--nex-gold);font-style:normal}
+
+/* Sidebar underline and scroll stability */
+.nex-sidebar{overflow:hidden;}
+.nex-main{overflow:hidden;}
+
+/* Canvas sizing helper */
+.nex-canvas-wrap{position:relative;width:100%;}
+.nex-canvas-wrap canvas{display:block;}
+

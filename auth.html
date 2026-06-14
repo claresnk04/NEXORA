@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NEXORA — Masuk / Daftar</title>
+<style>
+  :root{
+    --bg:#F5F7FF;
+    --card:#fff;
+    --border:rgba(25,29,78,0.12);
+    --text:#1a1d4e;
+    --muted:rgba(26,29,78,0.60);
+    --accent:#f5a623;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text);}
+  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .shell{width:min(440px,100%);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;box-shadow:0 18px 40px rgba(26,29,78,0.08);}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+  .logo{width:54px;height:54px;border-radius:14px;object-fit:contain;background:#fff;padding:2px;box-shadow:0 10px 24px rgba(0,0,0,0.10)}
+  .title{font-size:20px;font-weight:1000;letter-spacing:.3px}
+  .title span{color:var(--accent)}
+  .role-tag{margin-top:8px;display:inline-flex;align-items:center;gap:8px;background:#F3F5FA;border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:800;color:var(--muted)}
+  .role-tag b{color:var(--text)}
+  .role-tag a{color:var(--accent);text-decoration:none;font-weight:1000;margin-left:4px}
+
+  .tabs{display:flex;gap:8px;margin:18px 0 14px;background:#F3F5FA;border-radius:14px;padding:4px;}
+  .tab{flex:1;text-align:center;padding:10px;border-radius:11px;font-weight:1000;font-size:14px;cursor:pointer;color:var(--muted);transition:all .15s;}
+  .tab.active{background:#fff;color:var(--text);box-shadow:0 6px 16px rgba(26,29,78,0.08)}
+
+  form{display:none;flex-direction:column;gap:12px;}
+  form.active{display:flex;}
+  label{font-size:12px;font-weight:1000;color:var(--muted);margin-bottom:4px;display:block}
+  .field{display:flex;flex-direction:column;}
+  input,select{border:1px solid var(--border);border-radius:12px;padding:11px 13px;font-size:14px;font-weight:700;color:var(--text);background:#fbfbff;outline:none;transition:border-color .15s}
+  input:focus,select:focus{border-color:var(--accent)}
+  .pwd-wrap{position:relative}
+  .pwd-wrap input{width:100%;padding-right:42px}
+  .pwd-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;font-weight:1000;color:var(--muted);user-select:none}
+
+  .row-between{display:flex;justify-content:flex-end;margin-top:-4px}
+  .row-between a{font-size:12px;font-weight:1000;color:var(--accent);text-decoration:none}
+
+  .btn{margin-top:6px;background:var(--text);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:1000;cursor:pointer;transition:transform .12s ease, opacity .12s;}
+  .btn:hover{opacity:.92}
+  .btn:active{transform:translateY(1px)}
+  .btn.accent{background:var(--accent);color:var(--text)}
+
+  .error{display:none;background:#FDECEC;border:1px solid #F5C2C2;color:#B42318;font-size:12.5px;font-weight:800;border-radius:10px;padding:9px 12px;}
+  .error.show{display:block}
+  .success{display:none;background:#EAF7EE;border:1px solid #BFE6CB;color:#1E7A3D;font-size:12.5px;font-weight:800;border-radius:10px;padding:9px 12px;}
+  .success.show{display:block}
+
+  .switch-line{margin-top:14px;text-align:center;font-size:13px;color:var(--muted);font-weight:800}
+  .switch-line a{color:var(--accent);font-weight:1000;text-decoration:none;cursor:pointer}
+
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:1000;color:var(--muted);text-decoration:none;margin-top:14px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="shell">
+      <div class="brand">
+        <img class="logo" src="img/NEXORA_LOGO.jpeg" alt="NEXORA" />
+        <div>
+          <div class="title">NEX<span>ORA</span> BOARD</div>
+        </div>
+      </div>
+      <div class="role-tag" id="roleTag">
+        Masuk sebagai <b id="roleLabel">-</b>
+        <a href="index.html">Ganti</a>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" id="tabLogin" onclick="switchTab('login')">Masuk</div>
+        <div class="tab" id="tabSignup" onclick="switchTab('signup')">Daftar</div>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" class="active" onsubmit="handleLogin(event)">
+        <div class="error" id="loginError"></div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="nama@email.com" required />
+        </div>
+        <div class="field">
+          <label>Kata Sandi</label>
+          <div class="pwd-wrap">
+            <input type="password" id="loginPassword" placeholder="••••••••" required minlength="6" />
+            <span class="pwd-toggle" onclick="togglePwd('loginPassword',this)">Lihat</span>
+          </div>
+        </div>
+        <div class="row-between">
+          <a href="forgot.html">Lupa kata sandi?</a>
+        </div>
+        <button type="submit" class="btn">Masuk</button>
+      </form>
+
+      <!-- SIGNUP FORM -->
+      <form id="signupForm" onsubmit="handleSignup(event)">
+        <div class="error" id="signupError"></div>
+        <div class="field">
+          <label>Nama Lengkap</label>
+          <input type="text" id="signupName" placeholder="Nama lengkap" required />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="signupEmail" placeholder="nama@email.com" required />
+        </div>
+        <div class="field">
+          <label>Kata Sandi</label>
+          <div class="pwd-wrap">
+            <input type="password" id="signupPassword" placeholder="Minimal 6 karakter" required minlength="6" />
+            <span class="pwd-toggle" onclick="togglePwd('signupPassword',this)">Lihat</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Ulangi Kata Sandi</label>
+          <div class="pwd-wrap">
+            <input type="password" id="signupPassword2" placeholder="Ulangi kata sandi" required minlength="6" />
+            <span class="pwd-toggle" onclick="togglePwd('signupPassword2',this)">Lihat</span>
+          </div>
+        </div>
+        <button type="submit" class="btn accent">Daftar &amp; Masuk</button>
+      </form>
+
+      <div class="switch-line" id="switchLine">
+        Belum punya akun? <a onclick="switchTab('signup')">Daftar di sini</a>
+      </div>
+
+      <a class="back" href="index.html">← Kembali pilih peran</a>
+    </div>
+  </div>
+
+  <script>
+    // ---- Role handling ----
+    const params = new URLSearchParams(window.location.search);
+    let role = params.get('role') || localStorage.getItem('nexora_role') || 'guru';
+    if(role !== 'guru' && role !== 'ortu') role = 'guru';
+    localStorage.setItem('nexora_role', role);
+    document.getElementById('roleLabel').textContent = role === 'guru' ? '👩‍🏫 Guru' : '👨‍👩‍👧‍👦 Orang Tua';
+
+
+    const destinations = {
+      guru: 'guru/guru.html',
+      ortu: 'ortu/ortu.html'
+    };
+
+    function switchTab(which){
+      const isLogin = which === 'login';
+      document.getElementById('tabLogin').classList.toggle('active', isLogin);
+      document.getElementById('tabSignup').classList.toggle('active', !isLogin);
+      document.getElementById('loginForm').classList.toggle('active', isLogin);
+      document.getElementById('signupForm').classList.toggle('active', !isLogin);
+      document.getElementById('switchLine').innerHTML = isLogin
+        ? 'Belum punya akun? <a onclick="switchTab(\'signup\')">Daftar di sini</a>'
+        : 'Sudah punya akun? <a onclick="switchTab(\'login\')">Masuk di sini</a>';
+      document.getElementById('loginError').classList.remove('show');
+      document.getElementById('signupError').classList.remove('show');
+    }
+
+    function togglePwd(id, el){
+      const input = document.getElementById(id);
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      el.textContent = show ? 'Sembunyi' : 'Lihat';
+    }
+
+    function safeEmojiLabel(role){
+      // hindari kesan AI: label sederhana & manusia
+      return role === 'ortu' ? '👨‍👩‍👧‍👦 Orang Tua' : '👩‍🏫 Guru';
+    }
+
+
+    function getUsers(){
+      try{ return JSON.parse(localStorage.getItem('nexora_users') || '{}'); }
+      catch(e){ return {}; }
+    }
+    function saveUsers(users){
+      localStorage.setItem('nexora_users', JSON.stringify(users));
+    }
+
+    function handleLogin(e){
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
+      const errBox = document.getElementById('loginError');
+      const users = getUsers();
+      const user = users[email];
+
+      if(!user || user.password !== password){
+        errBox.textContent = 'Email atau kata sandi salah.';
+        errBox.classList.add('show');
+        return;
+      }
+
+      // Final role: pakai role yang dipilih user dari UI (landing tombol)
+      // agar klik “Ortu” tidak tetap diarahkan ke Guru karena role tersimpan sebelumnya.
+      const finalRole = role;
+
+      // Overwrite role pilihan dari UI (query param ?role=ortu / ?role=guru)
+      // agar tombol pada landing tetap menentukan halaman setelah login.
+      localStorage.setItem('nexora_role', role);
+      localStorage.setItem('nexora_session', JSON.stringify({ email, name: user.name, role }));
+      window.location.href = destinations[role] || destinations.guru;
+    }
+
+
+    function handleSignup(e){
+      e.preventDefault();
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim().toLowerCase();
+      const password = document.getElementById('signupPassword').value;
+      const password2 = document.getElementById('signupPassword2').value;
+      const errBox = document.getElementById('signupError');
+
+      if(password !== password2){
+        errBox.textContent = 'Kata sandi tidak sama.';
+        errBox.classList.add('show');
+        return;
+      }
+      if(password.length < 6){
+        errBox.textContent = 'Kata sandi minimal 6 karakter.';
+        errBox.classList.add('show');
+        return;
+      }
+
+      const users = getUsers();
+      if(users[email]){
+        errBox.textContent = 'Email sudah terdaftar. Silakan masuk.';
+        errBox.classList.add('show');
+        return;
+      }
+
+      users[email] = { name, password, role };
+      saveUsers(users);
+      localStorage.setItem('nexora_session', JSON.stringify({ email, name, role }));
+      window.location.href = destinations[role] || destinations.guru;
+    }
+  </script>
+</body>
+</html>

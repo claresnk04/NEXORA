@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NEXORA — Lupa Kata Sandi</title>
+<style>
+  :root{
+    --bg:#F5F7FF;
+    --card:#fff;
+    --border:rgba(25,29,78,0.12);
+    --text:#1a1d4e;
+    --muted:rgba(26,29,78,0.60);
+    --accent:#f5a623;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text);}
+  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .shell{width:min(440px,100%);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;box-shadow:0 18px 40px rgba(26,29,78,0.08);}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+  .logo{width:54px;height:54px;border-radius:14px;object-fit:contain;background:#fff;padding:2px;box-shadow:0 10px 24px rgba(0,0,0,0.10)}
+  .title{font-size:20px;font-weight:1000;letter-spacing:.3px}
+  .title span{color:var(--accent)}
+  h1{font-size:18px;font-weight:1000;margin:18px 0 6px}
+  p.sub{color:var(--muted);font-weight:800;font-size:13px;line-height:1.5;margin-bottom:16px}
+
+  .step{display:none;flex-direction:column;gap:12px;}
+  .step.active{display:flex;}
+  label{font-size:12px;font-weight:1000;color:var(--muted);margin-bottom:4px;display:block}
+  .field{display:flex;flex-direction:column;}
+  input{border:1px solid var(--border);border-radius:12px;padding:11px 13px;font-size:14px;font-weight:700;color:var(--text);background:#fbfbff;outline:none;transition:border-color .15s}
+  input:focus{border-color:var(--accent)}
+  .pwd-wrap{position:relative}
+  .pwd-wrap input{width:100%;padding-right:42px}
+  .pwd-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:13px;font-weight:1000;color:var(--muted);user-select:none}
+
+  .btn{margin-top:6px;background:var(--text);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:1000;cursor:pointer;transition:opacity .12s;}
+  .btn:hover{opacity:.92}
+  .btn.accent{background:var(--accent);color:var(--text)}
+
+  .error{display:none;background:#FDECEC;border:1px solid #F5C2C2;color:#B42318;font-size:12.5px;font-weight:800;border-radius:10px;padding:9px 12px;}
+  .error.show{display:block}
+  .success{display:none;background:#EAF7EE;border:1px solid #BFE6CB;color:#1E7A3D;font-size:12.5px;font-weight:800;border-radius:10px;padding:9px 12px;}
+  .success.show{display:block}
+
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:1000;color:var(--muted);text-decoration:none;margin-top:16px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="shell">
+      <div class="brand">
+        <img class="logo" src="img/NEXORA_LOGO.jpeg" alt="NEXORA" />
+        <div>
+          <div class="title">NEX<span>ORA</span> BOARD</div>
+        </div>
+      </div>
+
+      <!-- STEP 1: enter email -->
+      <div class="step active" id="step1">
+        <h1>Lupa Kata Sandi</h1>
+        <p class="sub">Masukkan email akun kamu. Jika ditemukan, kamu bisa langsung membuat kata sandi baru.</p>
+        <div class="error" id="err1"></div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="nama@email.com" required />
+        </div>
+        <button class="btn" onclick="checkEmail()">Lanjutkan</button>
+      </div>
+
+      <!-- STEP 2: new password -->
+      <div class="step" id="step2">
+        <h1>Buat Kata Sandi Baru</h1>
+        <p class="sub">Akun ditemukan atas nama <b id="foundName"></b>. Buat kata sandi baru di bawah ini.</p>
+        <div class="error" id="err2"></div>
+        <div class="field">
+          <label>Kata Sandi Baru</label>
+          <div class="pwd-wrap">
+            <input type="password" id="newPassword" placeholder="Minimal 6 karakter" required minlength="6" />
+            <span class="pwd-toggle" onclick="togglePwd('newPassword',this)">Lihat</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Ulangi Kata Sandi Baru</label>
+          <div class="pwd-wrap">
+            <input type="password" id="newPassword2" placeholder="Ulangi kata sandi baru" required minlength="6" />
+            <span class="pwd-toggle" onclick="togglePwd('newPassword2',this)">Lihat</span>
+          </div>
+        </div>
+        <button class="btn accent" onclick="resetPassword()">Simpan Kata Sandi Baru</button>
+      </div>
+
+      <!-- STEP 3: success -->
+      <div class="step" id="step3">
+        <h1>Berhasil!</h1>
+        <div class="success show">Kata sandi kamu sudah diperbarui. Sekarang kamu bisa masuk dengan kata sandi baru.</div>
+        <button class="btn" onclick="goToLogin()">Kembali ke Halaman Masuk</button>
+      </div>
+
+      <a class="back" href="auth.html">← Kembali ke halaman masuk</a>
+    </div>
+  </div>
+
+  <script>
+    let foundEmail = null;
+
+    function getUsers(){
+      try{ return JSON.parse(localStorage.getItem('nexora_users') || '{}'); }
+      catch(e){ return {}; }
+    }
+    function saveUsers(users){
+      localStorage.setItem('nexora_users', JSON.stringify(users));
+    }
+    function togglePwd(id, el){
+      const input = document.getElementById(id);
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      el.textContent = show ? 'Sembunyi' : 'Lihat';
+    }
+    function showStep(n){
+      document.getElementById('step1').classList.toggle('active', n===1);
+      document.getElementById('step2').classList.toggle('active', n===2);
+      document.getElementById('step3').classList.toggle('active', n===3);
+    }
+
+    function checkEmail(){
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const errBox = document.getElementById('err1');
+      const users = getUsers();
+      const user = users[email];
+
+      if(!email){
+        errBox.textContent = 'Masukkan email terlebih dahulu.';
+        errBox.classList.add('show');
+        return;
+      }
+      if(!user){
+        errBox.textContent = 'Email tidak ditemukan. Periksa kembali atau daftar akun baru.';
+        errBox.classList.add('show');
+        return;
+      }
+      errBox.classList.remove('show');
+      foundEmail = email;
+      document.getElementById('foundName').textContent = user.name || email;
+      showStep(2);
+    }
+
+    function resetPassword(){
+      const p1 = document.getElementById('newPassword').value;
+      const p2 = document.getElementById('newPassword2').value;
+      const errBox = document.getElementById('err2');
+
+      if(p1 !== p2){
+        errBox.textContent = 'Kata sandi tidak sama.';
+        errBox.classList.add('show');
+        return;
+      }
+      if(p1.length < 6){
+        errBox.textContent = 'Kata sandi minimal 6 karakter.';
+        errBox.classList.add('show');
+        return;
+      }
+
+      const users = getUsers();
+      if(!users[foundEmail]){
+        errBox.textContent = 'Terjadi kesalahan. Ulangi proses dari awal.';
+        errBox.classList.add('show');
+        showStep(1);
+        return;
+      }
+      users[foundEmail].password = p1;
+      saveUsers(users);
+      errBox.classList.remove('show');
+      showStep(3);
+    }
+
+    function goToLogin(){
+      window.location.href = 'auth.html';
+    }
+  </script>
+</body>
+</html>

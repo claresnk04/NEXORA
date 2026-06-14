@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXBOARD — Dashboard Orang Tua</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --navy:#0f1035;--navy2:#1a1d4e;
+  --teal:#0a5e49;--teal-lt:#E1F5EE;--teal-md:#7ECAB8;
+  --gold:#f5a623;--gold-lt:#FFF3DC;
+  --blue:#185FA5;--blue-lt:#E6F1FB;
+  --green:#2d6a0a;--green-lt:#EAF3DE;
+  --amber:#7c4700;--amber-lt:#FAEEDA;
+  --red:#9b2626;--red-lt:#FCEBEB;
+  --purple:#4a41b0;--purple-lt:#EEEDFE;
+  --pink:#a0226e;--pink-lt:#fce7f3;
+  --bg:#f0f4f8;--bg2:#fff;--bg3:#e4eaf2;
+  --txt:#1a1d2e;--txt2:#5a5f7d;--txt3:#9499b5;
+  --border:rgba(0,0,0,0.07);
+  --r:14px;--rsm:8px;--rlg:18px;
+  --sh:0 2px 16px rgba(15,16,53,0.07);
+  --sh-md:0 6px 28px rgba(15,16,53,0.12);
+  --sh-lg:0 12px 48px rgba(15,16,53,0.16);
+  --sb:260px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--txt);display:flex;overflow:hidden;min-width:0}
+
+/* ─── SIDEBAR (warm teal theme for parents) ─── */
+.sb{width:var(--sb);flex-shrink:0;background:linear-gradient(180deg,var(--teal) 0%,#064233 100%);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.sb-logo{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.sb-ico{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#e8940f);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:var(--navy);flex-shrink:0}
+.sb-name{font-size:17px;font-weight:800;color:#fff;letter-spacing:.3px}
+.sb-name em{color:var(--gold);font-style:normal}
+.sb-sub{font-size:9.5px;color:rgba(255,255,255,.28);letter-spacing:2px;text-transform:uppercase}
+/* child switcher */
+.child-sw{margin:16px 16px 0;padding:10px 14px;background:rgba(255,255,255,.08);border-radius:12px;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:10px}
+.child-sw:hover{background:rgba(255,255,255,.14)}
+.child-ava{width:36px;height:36px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--navy);flex-shrink:0}
+.child-name{font-size:12.5px;font-weight:700;color:#fff}
+.child-class{font-size:10.5px;color:rgba(255,255,255,.45);margin-top:1px}
+.child-arr{margin-left:auto;font-size:14px;color:rgba(255,255,255,.4)}
+.sb-nav{flex:1;overflow-y:auto;padding:10px 0;min-height:0}
+.sb-nav::-webkit-scrollbar{width:0}
+.sb-sec{font-size:9px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:2px;text-transform:uppercase;padding:12px 20px 4px}
+.sb-item{display:flex;align-items:center;gap:11px;padding:9px 20px;font-size:13px;font-weight:500;color:rgba(255,255,255,.5);cursor:pointer;border-left:3px solid transparent;transition:all .18s}
+.sb-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.05)}
+.sb-item.on{color:#fff;background:rgba(245,166,35,.15);border-left-color:var(--gold)}
+.sb-item i{font-size:17px;flex-shrink:0}
+.sb-badge{margin-left:auto;padding:1px 7px;border-radius:20px;font-size:9.5px;font-weight:700;background:var(--gold);color:var(--navy)}
+.sb-badge.rd{background:#e24b4a;color:#fff}
+.sb-badge.gr{background:var(--green);color:#fff}
+.sb-user{padding:14px 18px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px}
+.sb-ava{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#7ECAB8,var(--teal));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+.sb-uname{font-size:12.5px;font-weight:700;color:#fff}
+.sb-urole{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px}
+.sb-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;margin-left:auto;flex-shrink:0;box-shadow:0 0 0 2px rgba(74,222,128,.3)}
+
+/* ─── MAIN ─── */
+.main{flex:1;display:flex;flex-direction:column;min-height:100vh;height:100vh;overflow:hidden;min-width:0}
+.content{min-height:0; min-width:0;}
+
+
+.top{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;gap:14px;flex-shrink:0;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.top-title{flex:1}
+.top-title h1{font-size:16px;font-weight:700;color:var(--txt)}
+.top-title p{font-size:11px;color:var(--txt2);margin-top:1px}
+.top-search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:7px 12px;width:220px;flex-shrink:0}
+.top-search input{border:none;background:none;outline:none;font-size:12.5px;color:var(--txt);font-family:inherit;width:100%}
+.top-search i{color:var(--txt3);font-size:15px;flex-shrink:0}
+.top-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt2);font-size:17px;transition:all .15s;position:relative}
+.top-btn:hover{background:var(--bg);color:var(--teal)}
+.top-btn .bdot{width:7px;height:7px;background:#e24b4a;border-radius:50%;position:absolute;top:5px;right:5px;border:2px solid var(--bg2)}
+
+/* ─── CONTENT ─── */
+.content{flex:1;overflow-y:auto;padding:24px 28px;min-height:0}
+.content::-webkit-scrollbar{width:5px}
+.content::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:3px}
+
+/* ─── SECTIONS ─── */
+.sec{display:none;animation:fadeUp .25s ease;min-width:0}
+.sec.on{display:block;min-width:0}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── TABS ─── */
+.ptabs{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:3px;width:fit-content;margin-bottom:20px}
+.ptab{padding:7px 18px;border-radius:8px;font-size:12.5px;font-weight:500;cursor:pointer;color:var(--txt2);transition:all .15s}
+.ptab.on{background:var(--teal);color:#fff;box-shadow:var(--sh)}
+
+/* ─── HERO CARD (child overview) ─── */
+.hero-card{min-width:0;
+  background:linear-gradient(135deg,var(--teal) 0%,#0f7a62 60%,#185FA5 100%);
+  border-radius:var(--rlg);padding:24px 28px;margin-bottom:20px;
+  display:flex;align-items:center;gap:24px;position:relative;overflow:hidden;
+  box-shadow:0 8px 32px rgba(10,94,73,.3);
+  min-width:0;
+}
+
+.hero-card::before{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06)}
+.hero-card::after{content:'';position:absolute;right:80px;bottom:-60px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.04)}
+.hero-ava{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#e8940f);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:var(--navy);flex-shrink:0;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.hero-info{flex:1;z-index:1}
+.hero-name{font-size:20px;font-weight:800;color:#fff}
+.hero-meta{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
+.hero-stats{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap;min-width:0}
+
+.hstat{text-align:center;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 16px;min-width:60px;flex-shrink:0}
+.hstat-val{font-size:18px;font-weight:800;color:#fff}
+.hstat-lbl{font-size:9.5px;color:rgba(255,255,255,.55);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.hero-mood{z-index:1;font-size:48px;opacity:.9}
+
+/* ─── STAT CARDS ─── */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;min-width:0;margin-bottom:20px;min-width:0}
+
+.sc{background:var(--bg2);border-radius:var(--r);border:1px solid var(--border);padding:18px 20px;box-shadow:var(--sh);transition:transform .2s,box-shadow .2s;cursor:default;min-width:0;overflow:hidden}
+
+.sc:hover{transform:translateY(-3px);box-shadow:var(--sh-md)}
+.sc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.sc-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.sc-badge{font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:20px;display:flex;align-items:center;gap:3px}
+.up{background:var(--green-lt);color:var(--green)}
+.dn{background:var(--red-lt);color:var(--red)}
+.wn{background:var(--amber-lt);color:var(--amber)}
+.sc-val{font-size:28px;font-weight:800;color:var(--txt);line-height:1}
+.sc-lbl{font-size:11.5px;color:var(--txt2);margin-top:4px}
+.sc-bar{height:4px;border-radius:2px;background:var(--bg3);margin-top:12px;overflow:hidden}
+.sc-fill{height:100%;border-radius:2px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+
+/* ─── PANEL ─── */
+.pnl{background:var(--bg2);border-radius:var(--r);border:1px solid var(--border);padding:20px;box-shadow:var(--sh);min-width:0;overflow:hidden}
+
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.pt{font-size:13.5px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:8px}
+.pt i{font-size:17px}
+.pa{font-size:11.5px;color:var(--teal);cursor:pointer;font-weight:500;display:flex;align-items:center;gap:3px}
+.pa:hover{text-decoration:underline}
+
+/* ─── GRID ─── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;min-width:0;margin-bottom:16px;min-width:0}
+
+.g3{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;min-width:0;margin-bottom:16px;min-width:0}
+
+.g3c{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;min-width:0;margin-bottom:16px;min-width:0}
+
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;min-width:0;margin-bottom:16px;min-width:0}
+
+
+/* ─── PROGRESS SUBJECTS ─── */
+.prog-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.prog-row:last-child{border-bottom:none}
+.prog-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.prog-info{flex:1}
+.prog-name{font-size:12.5px;font-weight:600;color:var(--txt)}
+.prog-lv{font-size:10.5px;color:var(--txt2);margin-top:1px}
+.pbar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:5px}
+.pfill{height:100%;border-radius:3px;transition:width 1.2s ease}
+.ppct{font-size:12.5px;font-weight:700;color:var(--txt);flex-shrink:0;min-width:36px;text-align:right}
+
+/* ─── PILL ─── */
+.pill{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.p-ok{background:var(--green-lt);color:var(--green)}
+.p-wn{background:var(--amber-lt);color:var(--amber)}
+.p-bd{background:var(--red-lt);color:var(--red)}
+.p-tp{background:var(--purple-lt);color:var(--purple)}
+.p-in{background:var(--blue-lt);color:var(--blue)}
+.p-tl{background:var(--teal-lt);color:var(--teal)}
+
+/* ─── MOOD WIDGET ─── */
+.moodg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mcard{background:var(--bg);border-radius:12px;padding:14px;text-align:center;border:1px solid var(--border);transition:transform .18s}
+.mcard:hover{transform:scale(1.04)}
+.mcard-em{font-size:30px;margin-bottom:6px}
+.mcard-n{font-size:11.5px;font-weight:600;color:var(--txt)}
+.mcard-c{font-size:22px;font-weight:800;line-height:1.1;margin-top:2px}
+.mcard-p{font-size:10px;color:var(--txt3);margin-top:2px}
+
+/* ─── ACTIVITY FEED ─── */
+.afd{display:flex;flex-direction:column}
+.ai{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--border);animation:fadeSlide .3s ease}
+.ai:last-child{border-bottom:none}
+@keyframes fadeSlide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.aico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.abody{flex:1}
+.atxt{font-size:12px;color:var(--txt);line-height:1.5}
+.atxt b{font-weight:700}
+.atm{font-size:10px;color:var(--txt3);margin-top:2px}
+
+/* ─── JOURNAL ─── */
+.jcard{padding:14px;background:var(--bg);border-radius:12px;border-left:4px solid var(--teal);margin-bottom:11px;cursor:pointer;transition:box-shadow .15s}
+.jcard:hover{box-shadow:var(--sh-md)}
+.jcard:last-child{margin-bottom:0}
+.jcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.jcard-date{font-size:10.5px;color:var(--txt3)}
+.jcard-dur{font-size:10.5px;color:var(--teal);font-weight:600;background:var(--teal-lt);padding:2px 8px;border-radius:20px}
+.jcard-txt{font-size:12.5px;color:var(--txt);line-height:1.6}
+.jcard-mood{font-size:20px;margin-right:8px}
+
+/* ─── AI BUBBLE ─── */
+.ai-bubble{display:flex;gap:10px;margin-bottom:12px}
+.ai-ico{width:36px;height:36px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ai-msg{background:var(--bg);border-radius:4px 12px 12px 12px;padding:11px 14px;font-size:12.5px;color:var(--txt);line-height:1.65;border:1px solid var(--border);flex:1}
+
+/* ─── FORM ─── */
+.fg{margin-bottom:14px}
+.fl{font-size:11.5px;font-weight:700;color:var(--txt2);margin-bottom:5px;display:block}
+.fi,.fsel,.fta{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-size:12.5px;font-family:inherit;color:var(--txt);background:var(--bg2);outline:none;transition:border-color .2s,box-shadow .2s}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(10,94,73,.1)}
+.fta{resize:vertical;min-height:90px}
+
+/* ─── BUTTONS ─── */
+.btn{padding:9px 18px;border-radius:10px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;border:none;display:inline-flex;align-items:center;gap:6px}
+.btn-p{background:var(--teal);color:#fff}
+.btn-p:hover{background:var(--teal)}
+.btn-s{background:var(--bg);color:var(--txt);border:1px solid var(--border)}
+.btn-s:hover{background:var(--bg2);border-color:var(--teal);color:var(--teal)}
+.btn-full{width:100%;justify-content:center}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#e8940f);color:var(--navy)}
+
+/* ─── PORTOFOFLIO ─── */
+.porto-card{background:var(--bg);border-radius:12px;border:1px solid var(--border);padding:14px;margin-bottom:10px}
+.porto-card:last-child{margin-bottom:0}
+.porto-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.porto-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.porto-title{font-size:12.5px;font-weight:700;color:var(--txt)}
+.porto-date{font-size:10.5px;color:var(--txt3);margin-top:1px}
+.porto-desc{font-size:12px;color:var(--txt2);line-height:1.5}
+
+/* ─── NEXCARD PARENT ─── */
+.ncg{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;min-width:0}
+
+
+
+.ncrd{aspect-ratio:3/4;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;border:1.5px solid transparent;transition:transform .2s,box-shadow .2s;padding:8px 4px;min-width:0;overflow:hidden}
+.ncrd:hover{transform:translateY(-5px) rotate(-2deg);box-shadow:var(--sh-md)}
+.ncrd i{font-size:24px}
+.ncrd-n{font-size:9.5px;font-weight:700;text-align:center;line-height:1.2}
+.ncrd-x{font-size:8.5px;font-weight:500;opacity:.7}
+.ncrd-new{position:relative}
+.ncrd-new::after{content:'BARU';position:absolute;top:-4px;right:-4px;background:#e24b4a;color:#fff;font-size:7px;font-weight:800;padding:1px 5px;border-radius:4px;letter-spacing:.5px}
+
+/* ─── CALENDAR ─── */
+.calg{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.calh{text-align:center;font-size:9px;font-weight:700;color:var(--txt3);padding:4px}
+.cald{text-align:center;font-size:11px;font-weight:500;padding:5px 2px;border-radius:7px;cursor:pointer;color:var(--txt2);transition:all .12s}
+.cald:hover{background:var(--bg)}
+.cald.today{background:var(--teal);color:#fff;font-weight:700}
+.cald.ev::after{content:'';width:4px;height:4px;border-radius:50%;background:var(--gold);display:block;margin:-2px auto 0}
+.cald.other{color:var(--txt3);opacity:.35}
+
+/* ─── NOTIFICATION ─── */
+.notif-panel{position:fixed;top:68px;right:28px;width:320px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-lg);z-index:200;display:none;animation:fadeDown .15s ease}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.notif-panel.show{display:block}
+.np-hd{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.np-title{font-size:13px;font-weight:700;color:var(--txt)}
+.np-all{font-size:11px;color:var(--teal);cursor:pointer}
+.np-item{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+.np-item:hover{background:var(--bg)}
+.np-item:last-child{border-bottom:none}
+.np-ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.np-txt{font-size:12px;color:var(--txt);line-height:1.4}
+.np-tm{font-size:10px;color:var(--txt3);margin-top:2px}
+
+/* ─── PROGRESS RING ─── */
+.ring-container{display:flex;justify-content:center;align-items:center;position:relative}
+.ring-text{position:absolute;font-size:18px;font-weight:800;color:var(--teal)}
+
+/* ─── TOGGLE ─── */
+.toggle{position:relative;display:inline-block;width:42px;height:22px}
+.toggle input{opacity:0;width:0;height:0}
+.tslider{position:absolute;cursor:pointer;inset:0;background:var(--bg3);border-radius:22px;transition:.2s}
+.tslider:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+input:checked+.tslider{background:var(--teal)}
+input:checked+.tslider:before{transform:translateX(20px)}
+
+/* ─── PULSE ─── */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
+
+/* ─── RESPONSIVE ─── */
+.g3{grid-template-columns:1fr}
+.sb-name,.sb-sub,.sb-sec,.sb-uname,.sb-urole,.sb-badge,.child-name,.child-class,.child-arr{display:none}.sb-item{padding:12px 0;justify-content:center}.sb-item i{margin:0}
+
+/* ════════════════════════════════
+   RESPONSIVE — NEXBOARD ORANG TUA
+   HP < 768px | Tablet 768-1050px | Laptop 1050-1300px
+   ════════════════════════════════ */
+
+/* ── Laptop kecil (≤1300px) ── */
+@media(max-width:1300px){
+  .sg{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:1fr}
+  .g4{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ── Tablet (≤1050px) ── */
+@media(max-width:1050px){
+  :root{--sb:200px}
+  .child-sw{margin:10px 12px 0;padding:8px 10px}
+  .child-name{font-size:11.5px}
+  .sb-sec,.sb-badge{display:none}
+  .sb-item{padding:9px 12px;font-size:12px}
+  .content{padding:16px 18px}
+  .sg{grid-template-columns:repeat(2,1fr);gap:10px}
+  .g2,.g3{grid-template-columns:1fr}
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .top{padding:0 18px}
+  .top-search{width:170px}
+  .hero-card{padding:18px 20px;gap:16px}
+  .hero-name{font-size:17px}
+  .hstat{padding:8px 12px;min-width:54px}
+  .hstat-val{font-size:15px}
+}
+
+/* ── HP (≤768px) ── */
+@media(max-width:768px){
+  /* Bottom nav menggantikan sidebar */
+  .sb{
+    position:fixed;bottom:0;left:0;right:0;top:auto;
+    width:100%!important;height:60px;
+    flex-direction:row;z-index:100;
+    border-top:1px solid rgba(255,255,255,.1);
+    box-shadow:0 -4px 20px rgba(0,0,0,.2);
+  }
+  .sb-logo,.sb-nav .sb-sec,.sb-user,.sb-badge,
+  .sb-name,.sb-sub,.sb-uname,.sb-urole,
+  .child-sw,.child-name,.child-class,.child-arr{display:none!important}
+  .sb-nav{
+    flex-direction:row!important;display:flex!important;
+    flex:1;overflow:hidden;padding:0;align-items:stretch;
+  }
+  .sb-item{
+    flex:1;flex-direction:column;
+    padding:6px 4px!important;gap:3px!important;
+    border-left:none!important;border-top:3px solid transparent;
+    justify-content:center;align-items:center;font-size:9px!important;
+  }
+  .sb-item i{font-size:20px!important;margin:0!important}
+  .sb-item.on{
+    border-left:none!important;border-top-color:var(--gold)!important;
+    background:rgba(245,166,35,.13)!important;
+  }
+  .sb-item::after{
+    content:attr(data-label);font-size:9px;font-weight:600;
+    color:rgba(255,255,255,.5);line-height:1;display:block;
+  }
+  .sb-item.on::after{color:var(--gold)}
+
+  .main{
+    margin-left:0!important;
+    height:calc(100vh - 60px)!important;
+    width:100%!important;
+  }
+
+  /* Hero card responsif */
+  .hero-card{
+    padding:16px;flex-direction:column;gap:12px;
+    border-radius:14px;
+  }
+  .hero-ava{width:52px;height:52px;font-size:18px}
+  .hero-name{font-size:16px}
+  .hero-meta{font-size:10.5px}
+  .hero-stats{gap:8px;margin-top:10px;flex-wrap:wrap}
+  .hstat{padding:7px 10px;min-width:52px}
+  .hstat-val{font-size:14px}
+  .hstat-lbl{font-size:8px}
+  .hero-mood{font-size:36px!important;position:absolute;top:16px;right:16px}
+  .hero-card{position:relative;overflow:hidden}
+
+  /* Topbar */
+  .top{padding:0 14px;height:52px}
+  .top-title h1{font-size:14px}
+  .top-title p{display:none}
+  .top-search{display:none}
+
+  /* Content */
+  .content{padding:12px;padding-bottom:20px}
+
+  /* Grid jadi 1 kolom */
+  .sg,.g2,.g3,.g3c,.g4{grid-template-columns:1fr!important;gap:10px!important}
+
+  /* Stat cards horizontal scroll */
+  .sg{
+    display:flex!important;flex-direction:row!important;
+    overflow-x:auto!important;gap:10px!important;
+    padding-bottom:4px;scrollbar-width:none;
+  }
+  .sg::-webkit-scrollbar{display:none}
+  .sc{min-width:155px;flex-shrink:0}
+  .sc-val{font-size:22px}
+
+  /* Panel */
+  .pnl{padding:14px}
+
+  /* NexCard */
+  .ncg{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+
+  /* Jurnal cards */
+  .jcard{padding:11px}
+  .jcard-txt{font-size:11.5px}
+
+  /* Porto */
+  .porto-card{padding:12px}
+
+  /* AI bubble */
+  .ai-bubble{flex-direction:column;gap:8px}
+
+  /* Page tabs */
+  .ptabs{width:100%;overflow-x:auto;flex-wrap:nowrap}
+  .ptab{flex-shrink:0;padding:7px 12px;font-size:11px}
+
+  /* Notif panel */
+  .notif-panel{width:calc(100vw - 28px)!important;right:14px!important}
+
+  /* Child modal */
+  #child-modal>div{width:calc(100vw - 32px)!important}
+}
+
+/* ── HP kecil (≤480px) ── */
+@media(max-width:480px){
+  .hero-card{padding:14px}
+  .hero-name{font-size:14px}
+  .hstat{padding:6px 8px;min-width:46px}
+  .hstat-val{font-size:13px}
+  .hero-stats{gap:6px}
+  .sc{min-width:140px;padding:12px}
+  .ncg{grid-template-columns:repeat(2,1fr)!important}
+  .content{padding:10px}
+  .pnl{padding:12px}
+  .top-title h1{font-size:13px}
+}
+
+
+@media(max-width:768px){
+  body{overflow:hidden}
+  .content{overflow-y:auto;-webkit-overflow-scrolling:touch}
+}
+
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-row">
+      <div class="sb-ico">N</div>
+      <div class="sb-name">NEX<em>BOARD</em></div>
+    </div>
+    <div class="sb-sub">Ekosistem NEXORA · Orang Tua</div>
+  </div>
+
+  <!-- CHILD SWITCHER -->
+  <div class="child-sw" onclick="openChildModal()">
+    <div class="child-ava" id="sw-ava">AR</div>
+    <div><div class="child-name" id="sw-name">Arini Ramadhani</div><div class="child-class" id="sw-class">Kelas V-A · SDN NEXORA 1</div></div>
+    <i class="ti ti-chevron-down child-arr"></i>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-sec">Pantau Anak</div>
+    <div class="sb-item on" data-sec="overview"><i class="ti ti-home"></i> Ringkasan</div>
+    <div class="sb-item" data-sec="perkembangan"><i class="ti ti-chart-line"></i> Perkembangan</div>
+    <div class="sb-item" data-sec="materi"><i class="ti ti-books"></i> Capaian Materi</div>
+    <div class="sb-item" data-sec="mood"><i class="ti ti-mood-smile"></i> Mood & Emosi</div>
+    <div class="sb-item" data-sec="nexcard"><i class="ti ti-cards"></i> NexCard Anak <span class="sb-badge gr">+3</span></div>
+    <div class="sb-sec">Partisipasi</div>
+    <div class="sb-item" data-sec="jurnal"><i class="ti ti-notebook"></i> Jurnal Saya <span class="sb-badge">5</span></div>
+    <div class="sb-item" data-sec="portofolio"><i class="ti ti-folder"></i> Portofolio Anak</div>
+    <div class="sb-item" data-sec="observasi"><i class="ti ti-clipboard"></i> Form Observasi</div>
+    <div class="sb-sec">Komunikasi</div>
+    <div class="sb-item" data-sec="laporan"><i class="ti ti-file-report"></i> Laporan Guru <span class="sb-badge rd">1</span></div>
+    <div class="sb-item" data-sec="rekomendasi"><i class="ti ti-bulb"></i> Rekomendasi AI</div>
+    <div class="sb-item" data-sec="kalender"><i class="ti ti-calendar"></i> Jadwal</div>
+    <div class="sb-item" data-sec="pengaturan"><i class="ti ti-settings"></i> Pengaturan</div>
+  </nav>
+  <div class="sb-user">
+    <div class="sb-ava">IW</div>
+    <div><div class="sb-uname">Ibu Winda</div><div class="sb-urole">Orang Tua Arini</div></div>
+    <div class="sb-dot" title="Online"></div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+  <header class="top">
+    <div class="top-title">
+      <h1 id="pg-title">Ringkasan Perkembangan Arini</h1>
+      <p id="pg-sub">Jumat, 12 Juni 2026 · Kelas V-A · SDN NEXORA 1</p>
+    </div>
+    <div class="top-search"><i class="ti ti-search"></i><input placeholder="Cari materi, laporan..."></div>
+    <div class="top-btn" title="Chat dengan guru"><i class="ti ti-message-2"></i><div class="bdot"></div></div>
+    <div class="top-btn" id="notif-btn" onclick="toggleNotif()" title="Notifikasi"><i class="ti ti-bell"></i><div class="bdot"></div></div>
+    <div class="top-btn" title="Bantuan"><i class="ti ti-help"></i></div>
+  </header>
+
+  <!-- NOTIF DROPDOWN -->
+  <div class="notif-panel" id="notif-panel">
+    <div class="np-hd"><div class="np-title"><i class="ti ti-bell"></i> Notifikasi</div><div class="np-all">Tandai dibaca</div></div>
+    <div class="np-item"><div class="np-ico" style="background:var(--teal-lt);color:var(--teal)"><i class="ti ti-trophy"></i></div><div><div class="np-txt"><b>Arini</b> naik ke Level 9! Luar biasa 🎉</div><div class="np-tm">30 menit lalu</div></div></div>
+    <div class="np-item"><div class="np-ico" style="background:var(--blue-lt);color:var(--blue)"><i class="ti ti-file-report"></i></div><div><div class="np-txt">Laporan bulanan dari <b>Bu Sari</b> tersedia</div><div class="np-tm">2 jam lalu</div></div></div>
+    <div class="np-item"><div class="np-ico" style="background:var(--purple-lt);color:var(--purple)"><i class="ti ti-cards"></i></div><div><div class="np-txt">Arini mendapatkan <b>3 NexCard baru</b> hari ini</div><div class="np-tm">3 jam lalu</div></div></div>
+    <div class="np-item"><div class="np-ico" style="background:var(--amber-lt);color:var(--amber)"><i class="ti ti-alarm"></i></div><div><div class="np-txt">Pengisian jurnal harian belum dilakukan</div><div class="np-tm">Hari ini</div></div></div>
+  </div>
+
+  <!-- CHILD SWITCHER MODAL -->
+<div style="position:fixed;inset:0;background:rgba(10,12,30,.5);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)" id="child-modal" onclick="if(event.target===this)closeChildModal()">
+    
+    <div style="background:var(--bg2);border-radius:var(--rlg);width:360px;box-shadow:var(--sh-lg);animation:scaleUp .2s ease">
+      <div style="padding:20px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:14px;font-weight:800">Pilih Anak</div>
+        <div onclick="closeChildModal()" style="cursor:pointer;color:var(--txt3);font-size:15px"><i class="ti ti-x"></i></div>
+      </div>
+      <div style="padding:12px" id="child-list"></div>
+    </div>
+    
+  </div>
+
+  <div class="content">
+
+  <!-- ════ OVERVIEW ════ -->
+  <div class="sec on" id="sec-overview">
+
+    <!-- HERO -->
+    <div class="hero-card">
+      <div class="hero-ava" id="hero-ava">AR</div>
+      <div class="hero-info">
+        <div class="hero-name" id="hero-name">Arini Ramadhani</div>
+        <div class="hero-meta">Kelas V-A · SDN NEXORA 1 · Semester 2 · 2025/2026</div>
+        <div class="hero-stats">
+          <div class="hstat"><div class="hstat-val" id="h-lv">Lv.8</div><div class="hstat-lbl">Level</div></div>
+          <div class="hstat"><div class="hstat-val" id="h-xp">2.840</div><div class="hstat-lbl">Total XP</div></div>
+          <div class="hstat"><div class="hstat-val" id="h-streak">12🔥</div><div class="hstat-lbl">Streak</div></div>
+          <div class="hstat"><div class="hstat-val" id="h-card">24</div><div class="hstat-lbl">NexCard</div></div>
+          <div class="hstat"><div class="hstat-val" id="h-badge">5🏆</div><div class="hstat-lbl">Badge</div></div>
+        </div>
+      </div>
+      <div class="hero-mood" id="hero-mood">😊</div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="sg">
+      <div class="sc">
+        <div class="sc-top">
+          <div class="sc-ico" style="background:var(--teal-lt);color:var(--teal)"><i class="ti ti-chart-line"></i></div>
+          <span class="sc-badge up"><i class="ti ti-trending-up"></i>+5%</span>
+        </div>
+        <div class="sc-val" id="c-capaian">0%</div>
+        <div class="sc-lbl">Rata-rata capaian materi</div>
+        <div class="sc-bar"><div class="sc-fill" style="background:var(--teal);width:0" data-w="88"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-top">
+          <div class="sc-ico" style="background:var(--amber-lt);color:var(--amber)"><i class="ti ti-clock"></i></div>
+          <span class="sc-badge up"><i class="ti ti-trending-up"></i>+12 mnt</span>
+        </div>
+        <div class="sc-val" id="c-durasi">0</div>
+        <div class="sc-lbl">Menit belajar hari ini</div>
+        <div class="sc-bar"><div class="sc-fill" style="background:var(--gold);width:0" data-w="70"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-top">
+          <div class="sc-ico" style="background:var(--purple-lt);color:var(--purple)"><i class="ti ti-cards"></i></div>
+          <span class="sc-badge up"><i class="ti ti-trending-up"></i>+3 hari ini</span>
+        </div>
+        <div class="sc-val" id="c-nexcard">0</div>
+        <div class="sc-lbl">Total NexCard dimiliki</div>
+        <div class="sc-bar"><div class="sc-fill" style="background:var(--purple);width:0" data-w="48"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-top">
+          <div class="sc-ico" style="background:var(--green-lt);color:var(--green)"><i class="ti ti-flame"></i></div>
+          <span class="sc-badge up"><i class="ti ti-trending-up"></i>Konsisten!</span>
+        </div>
+        <div class="sc-val" id="c-streak">0</div>
+        <div class="sc-lbl">Hari streak berturut-turut</div>
+        <div class="sc-bar"><div class="sc-fill" style="background:var(--green);width:0" data-w="80"></div></div>
+      </div>
+    </div>
+
+    <div class="g3">
+      <!-- KETERLIBATAN CHART -->
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-chart-bar" style="color:var(--teal)"></i>Aktivitas Belajar Minggu Ini</div><div class="pa"><i class="ti ti-download"></i>Unduh</div></div>
+        <div style="position:relative;height:210px;width:100%"><canvas id="ch-weekly"></canvas></div>
+      </div>
+      <!-- MOOD -->
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-mood-smile" style="color:var(--gold)"></i>Mood Hari Ini</div></div>
+        <div style="text-align:center;padding:20px 0">
+          <div style="font-size:56px;margin-bottom:8px" id="curr-mood-em">😊</div>
+          <div style="font-size:18px;font-weight:800;color:var(--green)" id="curr-mood-n">Semangat Belajar!</div>
+          <div style="font-size:12px;color:var(--txt2);margin-top:4px">AI mendeteksi kondisi terbaik untuk belajar materi baru</div>
+          <div style="margin-top:16px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+            <span class="pill p-ok">Konsentrasi tinggi</span>
+            <span class="pill p-tl">Siap menerima materi</span>
+            <span class="pill p-tp">Mood positif</span>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:12px">
+          <div style="font-size:11px;color:var(--txt2);margin-bottom:6px;font-weight:600">Histori mood 7 hari</div>
+          <div style="display:flex;gap:6px;justify-content:center">
+            <div style="text-align:center;font-size:20px" title="Senin">😊</div>
+            <div style="text-align:center;font-size:20px" title="Selasa">😐</div>
+            <div style="text-align:center;font-size:20px" title="Rabu">😴</div>
+            <div style="text-align:center;font-size:20px" title="Kamis">😊</div>
+            <div style="text-align:center;font-size:20px" title="Jumat">😊</div>
+            <div style="text-align:center;font-size:20px" title="Sabtu">😑</div>
+            <div style="text-align:center;font-size:20px" title="Minggu">😴</div>
+          </div>
+          <div style="display:flex;gap:6px;justify-content:center;margin-top:3px">
+            <div style="text-align:center;font-size:9px;color:var(--txt3);width:20px">Sen</div>
+            <div style="text-align:center;font-size:9px;color:var(--txt3);width:20px">Sel</div>
+            <div style="text-align:center;font-size:9px;color:var(--txt3);width:20px">Rab</div>
+            <div style="text-align:center;font-size:9px;color:var(--txt3);width:20px">Kam</div>
+            <div style="text-align:center;font-size:9px;color:var(--txt3);width:20px">Jum</div>
+            <div style="text-align:center;font-size:9px;color:var(--txt3);width:20px">Sab</div>
+            <div style="text-align:center;font-size:9px;color:var(--txt3);width:20px">Min</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <!-- PENGUASAAN KOMPETENSI -->
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-school" style="color:var(--navy)"></i>Penguasaan Kompetensi</div><div class="pa" onclick="showSec('materi')">Detail <i class="ti ti-arrow-right"></i></div></div>
+        <div id="kompetansi-list"></div>
+      </div>
+      <!-- LIVE AKTIVITAS -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="pnl" style="flex:1">
+          <div class="ph">
+            <div class="pt"><i class="ti ti-activity" style="color:var(--teal)"></i>Aktivitas Terbaru</div>
+            <div style="font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px;font-weight:600"><i class="ti ti-circle-filled" style="font-size:8px;animation:pulse 2s infinite"></i>Live</div>
+          </div>
+          <div class="afd" id="live-feed"></div>
+        </div>
+        <!-- AI REKOMENDASI SINGKAT -->
+        <div class="pnl">
+          <div class="ph"><div class="pt"><i class="ti ti-bulb" style="color:var(--gold)"></i>Saran AI untuk Hari Ini</div></div>
+          <div class="ai-bubble">
+            <div class="ai-ico">🤖</div>
+            <div class="ai-msg">Arini dalam kondisi optimal hari ini. Manfaatkan dengan mencoba <b>NexWorld Matematika Pecahan</b> atau membaca buku bertema IPA. Target hari ini: selesaikan 1 misi dan pertahankan streak!</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <div style="flex:1;padding:9px 12px;background:var(--green-lt);border-radius:10px;font-size:12px;color:var(--green)"><i class="ti ti-book" style="margin-right:4px"></i>Buku: Sains Seru Anak SD</div>
+            <div style="flex:1;padding:9px 12px;background:var(--teal-lt);border-radius:10px;font-size:12px;color:var(--teal)"><i class="ti ti-player-play" style="margin-right:4px"></i>Video: IPA Bab 4</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /overview -->
+
+  <!-- ════ PERKEMBANGAN ════ -->
+  <div class="sec" id="sec-perkembangan">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Grafik Perkembangan Arini</h2>
+    <div class="g4" style="margin-bottom:20px">
+      <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:var(--teal-lt);color:var(--teal)"><i class="ti ti-trending-up"></i></div><span class="sc-badge up">+16%</span></div><div class="sc-val">88%</div><div class="sc-lbl">Capaian tertinggi</div></div>
+      <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:var(--green-lt);color:var(--green)"><i class="ti ti-flame"></i></div><span class="sc-badge up">+4 hari</span></div><div class="sc-val">12🔥</div><div class="sc-lbl">Streak terpanjang</div></div>
+      <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:var(--purple-lt);color:var(--purple)"><i class="ti ti-clock"></i></div><span class="sc-badge up">+8 mnt</span></div><div class="sc-val">42 mnt</div><div class="sc-lbl">Durasi belajar hari ini</div></div>
+      <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:var(--amber-lt);color:var(--amber)"><i class="ti ti-star"></i></div></div><div class="sc-val">5</div><div class="sc-lbl">Badge diraih</div></div>
+    </div>
+    <div class="g2">
+      <div class="pnl"><div class="ph"><div class="pt"><i class="ti ti-chart-line" style="color:var(--teal)"></i>Tren Motivasi & Partisipasi</div></div><div style="position:relative;height:220px;width:100%"><canvas id="ch-motivasi"></canvas></div></div>
+      <div class="pnl"><div class="ph"><div class="pt"><i class="ti ti-chart-bar" style="color:var(--purple)"></i>Durasi Belajar per Hari (Menit)</div></div><div style="position:relative;height:220px;width:100%"><canvas id="ch-durasi"></canvas></div></div>
+    </div>
+    <div class="pnl">
+      <div class="ph"><div class="pt"><i class="ti ti-chart-area" style="color:var(--blue)"></i>XP Terkumpul 4 Minggu Terakhir</div></div>
+      <div style="position:relative;height:160px;width:100%"><canvas id="ch-xp"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ════ MATERI ════ -->
+  <div class="sec" id="sec-materi">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Capaian Materi per Mata Pelajaran</h2>
+    <div class="g2">
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-books" style="color:var(--navy)"></i>Detail Penguasaan</div></div>
+        <div id="materi-detail"></div>
+      </div>
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-chart-pie" style="color:var(--teal)"></i>Distribusi Penguasaan</div></div>
+        <div style="position:relative;height:230px;width:100%"><canvas id="ch-mapel"></canvas></div>
+      </div>
+    </div>
+    <div class="pnl">
+      <div class="ph"><div class="pt"><i class="ti ti-school" style="color:var(--blue)"></i>Target KKM per Mapel</div></div>
+      <div id="kkm-list" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+  </div>
+
+  <!-- ════ MOOD ════ -->
+  <div class="sec" id="sec-mood">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Mood & Emosi Arini</h2>
+    <div class="g3">
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-chart-bar" style="color:var(--gold)"></i>Histori Mood 2 Minggu</div></div>
+        <div style="position:relative;height:220px;width:100%"><canvas id="ch-mood-2w"></canvas></div>
+      </div>
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-mood-smile" style="color:var(--teal)"></i>Distribusi Mood</div></div>
+        <div style="position:relative;height:160px;width:100%"><canvas id="ch-mood-d"></canvas></div>
+        <div class="moodg" style="margin-top:12px">
+          <div class="mcard"><div class="mcard-em">😊</div><div class="mcard-n">Senang</div><div class="mcard-c" style="color:var(--green)">8</div><div class="mcard-p">57%</div></div>
+          <div class="mcard"><div class="mcard-em">😐</div><div class="mcard-n">Fokus</div><div class="mcard-c" style="color:var(--blue)">3</div><div class="mcard-p">21%</div></div>
+          <div class="mcard"><div class="mcard-em">😴</div><div class="mcard-n">Lelah</div><div class="mcard-c" style="color:var(--amber)">2</div><div class="mcard-p">14%</div></div>
+          <div class="mcard"><div class="mcard-em">😑</div><div class="mcard-n">Bosan</div><div class="mcard-c" style="color:var(--red)">1</div><div class="mcard-p">7%</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ NEXCARD ════ -->
+  <div class="sec" id="sec-nexcard">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">NexCard Arini — Koleksi Pencapaian</h2>
+    <div class="pnl" style="margin-bottom:16px">
+      <div class="ph"><div class="pt"><i class="ti ti-cards" style="color:var(--gold)"></i>Koleksi Kartu (24 dari 60)</div><div style="font-size:12px;color:var(--txt2)">+3 hari ini 🎉</div></div>
+      <div class="ncg" id="nexcard-anak"></div>
+    </div>
+    <div class="g2">
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-trophy" style="color:var(--gold)"></i>Badge yang Diraih</div></div>
+        <div id="badge-list" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-target" style="color:var(--teal)"></i>Target NexCard Berikutnya</div></div>
+        <div id="target-nexcard" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ JURNAL ════ -->
+  <div class="sec" id="sec-jurnal">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Jurnal Perkembangan Saya</h2>
+    <div class="g2">
+      <div>
+        <div class="pnl" style="margin-bottom:16px">
+          <div class="ph"><div class="pt"><i class="ti ti-pencil" style="color:var(--teal)"></i>Tulis Jurnal Hari Ini</div></div>
+          <div class="fg"><label class="fl">Tanggal</label><input class="fi" value="12 Juni 2026"></div>
+          <div class="fg"><label class="fl">Durasi Belajar di Rumah</label><input class="fi" placeholder="contoh: 45 menit"></div>
+          <div class="fg">
+            <label class="fl">Kondisi Anak Hari Ini</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="kondisi" value="semangat"> 😊 Semangat</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="kondisi" value="biasa" checked> 😐 Biasa</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="kondisi" value="lelah"> 😴 Lelah</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="kondisi" value="kurang"> 😑 Kurang</label>
+            </div>
+          </div>
+          <div class="fg"><label class="fl">Catatan Observasi</label><textarea class="fta" placeholder="Ceritakan pengamatan Anda terhadap anak hari ini..."></textarea></div>
+          <div class="fg"><label class="fl">Kegiatan Belajar di Rumah</label><textarea class="fta" placeholder="Materi yang dipelajari, buku yang dibaca, dll..."></textarea></div>
+          <div class="fg"><label class="fl">Portofolio (jika ada)</label><input class="fi" type="text" placeholder="Nama karya / foto (misal: gambar sains)"></div>
+          <div style="display:flex;gap:8px"><button class="btn btn-s">Simpan Draft</button><button class="btn btn-p btn-full"><i class="ti ti-send"></i>Kirim ke Guru</button></div>
+        </div>
+      </div>
+      <div>
+        <div class="pnl">
+          <div class="ph"><div class="pt"><i class="ti ti-history" style="color:var(--teal)"></i>Riwayat Jurnal</div><span class="pill p-tl">5 entri</span></div>
+          <div id="jurnal-riwayat"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ PORTOFOLIO ════ -->
+  <div class="sec" id="sec-portofolio">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Portofolio Arini</h2>
+    <div class="pnl" style="margin-bottom:16px">
+      <div class="ph"><div class="pt"><i class="ti ti-folder" style="color:var(--gold)"></i>Karya & Pencapaian</div>
+        <button class="btn btn-p" style="padding:7px 14px;font-size:11.5px"><i class="ti ti-plus"></i>Upload Karya</button>
+      </div>
+      <div id="porto-list" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+  </div>
+
+  <!-- ════ OBSERVASI ════ -->
+  <div class="sec" id="sec-observasi">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Form Observasi Rumah</h2>
+    <div class="pnl" style="max-width:600px">
+      <div class="ph"><div class="pt"><i class="ti ti-clipboard" style="color:var(--teal)"></i>Observasi Terstruktur</div></div>
+      <div class="fg"><label class="fl">Periode Observasi</label><select class="fsel"><option>Minggu ini</option><option>Minggu lalu</option></select></div>
+      <div style="margin-bottom:14px">
+        <div class="fl">Indikator Belajar di Rumah</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border-radius:10px"><span style="font-size:12.5px">Anak membuka aplikasi secara mandiri</span><select class="fsel" style="width:130px"><option>Selalu</option><option>Sering</option><option>Kadang</option><option>Tidak pernah</option></select></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border-radius:10px"><span style="font-size:12.5px">Anak bertanya tentang materi</span><select class="fsel" style="width:130px"><option>Selalu</option><option>Sering</option><option selected>Kadang</option><option>Tidak pernah</option></select></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border-radius:10px"><span style="font-size:12.5px">Durasi belajar di rumah</span><select class="fsel" style="width:130px"><option>30-60 menit</option><option>60-90 menit</option><option>&lt;30 menit</option></select></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border-radius:10px"><span style="font-size:12.5px">Anak terlihat senang belajar</span><select class="fsel" style="width:130px"><option selected>Selalu</option><option>Sering</option><option>Kadang</option><option>Tidak pernah</option></select></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border-radius:10px"><span style="font-size:12.5px">Anak mengulang materi dari sekolah</span><select class="fsel" style="width:130px"><option>Selalu</option><option selected>Sering</option><option>Kadang</option><option>Tidak pernah</option></select></div>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Catatan Tambahan</label><textarea class="fta" placeholder="Hal-hal lain yang perlu disampaikan kepada guru..."></textarea></div>
+      <button class="btn btn-p btn-full"><i class="ti ti-send"></i>Kirim ke Guru</button>
+    </div>
+  </div>
+
+  <!-- ════ LAPORAN GURU ════ -->
+  <div class="sec" id="sec-laporan">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Laporan dari Guru</h2>
+    <div id="laporan-guru" style="display:flex;flex-direction:column;gap:14px"></div>
+  </div>
+
+  <!-- ════ REKOMENDASI ════ -->
+  <div class="sec" id="sec-rekomendasi">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Rekomendasi AI untuk Arini</h2>
+    <div class="pnl" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;padding:13px 15px;background:linear-gradient(135deg,var(--teal),#0f7a62);border-radius:12px;margin-bottom:14px">
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🤖</div>
+        <div><div style="font-size:13.5px;font-weight:700;color:#fff">NexBot Rekomendasi Orang Tua</div><div style="font-size:10.5px;color:rgba(255,255,255,.5)">Diperbarui setiap hari berdasarkan data Arini</div></div>
+        <div style="margin-left:auto;background:#4ade80;color:var(--navy);font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;animation:pulse 2s infinite">AUTO</div>
+      </div>
+      <div id="reko-ortu" style="display:flex;flex-direction:column;gap:12px"></div>
+    </div>
+  </div>
+
+  <!-- ════ KALENDER ════ -->
+  <div class="sec" id="sec-kalender">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Jadwal & Agenda Arini</h2>
+    <div class="g2">
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-calendar" style="color:var(--teal)"></i>Juni 2026</div></div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px">
+          <div class="calh">Min</div><div class="calh">Sen</div><div class="calh">Sel</div><div class="calh">Rab</div><div class="calh">Kam</div><div class="calh">Jum</div><div class="calh">Sab</div>
+        </div>
+        <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div>
+      </div>
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-calendar-event" style="color:var(--gold)"></i>Agenda Anak</div></div>
+        <div id="agenda-anak" style="display:flex;flex-direction:column;gap:9px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ PENGATURAN ════ -->
+  <div class="sec" id="sec-pengaturan">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Pengaturan Akun</h2>
+    <div class="g2">
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-user" style="color:var(--teal)"></i>Profil Orang Tua</div></div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding:14px;background:var(--bg);border-radius:12px">
+          <div style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#0f7a62);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff">IW</div>
+          <div><div style="font-size:13.5px;font-weight:700">Ibu Winda Ramadhani</div><div style="font-size:11.5px;color:var(--txt2);margin-top:2px">Orang Tua Arini · NEXORA</div></div>
+          <button class="btn btn-s" style="margin-left:auto;padding:6px 12px;font-size:11px">Ubah Foto</button>
+        </div>
+        <div class="fg"><label class="fl">Nama Lengkap</label><input class="fi" value="Winda Ramadhani, S.Sos."></div>
+        <div class="fg"><label class="fl">Email</label><input class="fi" value="winda.ramadhani@gmail.com"></div>
+        <div class="fg"><label class="fl">No. HP</label><input class="fi" value="+62 812-1234-5678"></div>
+        <div class="fg"><label class="fl">Hubungan dengan Anak</label><select class="fsel"><option>Ibu kandung</option><option>Ayah kandung</option><option>Wali</option></select></div>
+        <button class="btn btn-p btn-full"><i class="ti ti-device-floppy"></i>Simpan</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="pnl">
+          <div class="ph"><div class="pt"><i class="ti ti-bell" style="color:var(--gold)"></i>Notifikasi</div></div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px"><span>Pencapaian anak</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px"><span>Laporan dari guru</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px"><span>Pengingat jurnal harian</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px"><span>Penurunan motivasi anak</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+          </div>
+        </div>
+        <div class="pnl">
+          <div class="ph"><div class="pt"><i class="ti ti-users" style="color:var(--purple)"></i>Data Anak</div><button class="btn btn-s" style="padding:6px 12px;font-size:11.5px"><i class="ti ti-plus"></i>Tambah Anak</button></div>
+          <div id="anak-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+const CHILDREN=[
+  {id:1,name:'Arini Ramadhani',init:'AR',c:'#EEEDFE',tc:'#4a41b0',class:'V-A',mood:'😊',lv:8,xp:2840,streak:12,nexcard:24,pct:88},
+  {id:2,name:'Bimo Ramadhani',init:'BR',c:'#E1F5EE',tc:'#0a5e49',class:'III-B',mood:'😐',lv:4,xp:1120,streak:5,nexcard:12,pct:65},
+];
+let activeChild=CHILDREN[0];
+
+const MAPEL=[
+  {n:'Matematika',i:'ti-math-symbols',b:'#E6F1FB',t:'#185FA5',pct:88,lv:'Level 8',kkm:70},
+  {n:'IPA',i:'ti-flask',b:'#EAF3DE',t:'#2d6a0a',pct:72,lv:'Level 6',kkm:70},
+  {n:'IPS',i:'ti-world',b:'#FAEEDA',t:'#7c4700',pct:65,lv:'Level 5',kkm:65},
+  {n:'B. Indonesia',i:'ti-book',b:'#EEEDFE',t:'#4a41b0',pct:92,lv:'Level 9',kkm:70},
+  {n:'Seni Budaya',i:'ti-palette',b:'#fce7f3',t:'#a0226e',pct:80,lv:'Level 7',kkm:65},
+];
+
+const ACTIVITIES_ANAK=[
+  {icon:'ti-trophy',bg:'#EAF3DE',ic:'#2d6a0a',txt:'Arini meraih badge <b>"Bintang Bahasa"</b> — streak 18 hari',tm:'2 menit lalu'},
+  {icon:'ti-player-play',bg:'#E6F1FB',ic:'#185FA5',txt:'Arini menyelesaikan misi NexWorld <b>Matematika Pecahan</b>',tm:'5 menit lalu · +50 XP'},
+  {icon:'ti-cards',bg:'#EEEDFE',ic:'#4a41b0',txt:'Arini mendapatkan <b>NexCard IPA Baru</b>!',tm:'15 menit lalu'},
+  {icon:'ti-flame',bg:'#FAEEDA',ic:'#7c4700',txt:'Arini mempertahankan <b>streak 12 hari</b> berturut-turut',tm:'1 jam lalu'},
+  {icon:'ti-star',bg:'#FFF3DC',ic:'#7c4700',txt:'Arini naik ke <b>Level 8</b> di Matematika!',tm:'Kemarin'},
+];
+
+const JURNAL_DATA=[
+  {tgl:'11 Jun 2026',mood:'😊',dur:'45 mnt',isi:'Arini sangat antusias mengerjakan soal matematika mandiri malam ini. Selesai 2 bab tanpa diingatkan sama sekali.'},
+  {tgl:'10 Jun 2026',mood:'😐',dur:'35 mnt',isi:'Belajar bersama setelah makan malam. Meminta penjelasan tentang fotosintesis, kemudian mencatat sendiri di buku.'},
+  {tgl:'9 Jun 2026',mood:'😴',dur:'20 mnt',isi:'Terlihat lelah setelah pulang sekolah. Hanya bisa belajar singkat, tetapi tetap membuka NexFlix sebelum tidur.'},
+  {tgl:'8 Jun 2026',mood:'😊',dur:'50 mnt',isi:'Hari yang produktif. Arini menyelesaikan latihan soal IPS Bab 3 secara mandiri dan mendapat nilai penuh.'},
+  {tgl:'7 Jun 2026',mood:'😊',dur:'40 mnt',isi:'Membaca buku cerita sains yang direkomendasikan AI. Tampak sangat menikmati dan bercerita tentang isinya.'},
+];
+
+const PORTO_DATA=[
+  {n:'Gambar Siklus Air',date:'10 Jun 2026',mapel:'IPA',ico:'ti-brush',bg:'#EAF3DE',tc:'#2d6a0a',desc:'Arini membuat diagram siklus air dengan tangan sendiri sebagai ringkasan materi NexFlix Edu'},
+  {n:'Puisi Alam Indonesia',date:'7 Jun 2026',mapel:'B. Indonesia',ico:'ti-book',bg:'#EEEDFE',tc:'#4a41b0',desc:'Puisi pendek 3 bait tentang keindahan alam Indonesia, ditulis mandiri setelah pelajaran'},
+  {n:'Peta Konsep IPS',date:'3 Jun 2026',mapel:'IPS',ico:'ti-world',bg:'#FAEEDA',tc:'#7c4700',desc:'Mind map sumber daya alam Indonesia yang dikerjakan bersama di rumah'},
+];
+
+const NEXCARD_ANAK=[
+  {n:'Matematika',i:'ti-math-symbols',b:'#E6F1FB',t:'#185FA5',xp:'+50 XP',isNew:false},
+  {n:'IPA',i:'ti-flask',b:'#EAF3DE',t:'#2d6a0a',xp:'+40 XP',isNew:true},
+  {n:'B. Indo',i:'ti-book',b:'#EEEDFE',t:'#4a41b0',xp:'+45 XP',isNew:true},
+  {n:'Streak 7',i:'ti-flame',b:'#FCEBEB',t:'#9b2626',xp:'+100 XP',isNew:false},
+  {n:'Juara',i:'ti-trophy',b:'#FAEEDA',t:'#7c4700',xp:'+150 XP',isNew:true},
+  {n:'Explorer',i:'ti-compass',b:'#E1F5EE',t:'#0a5e49',xp:'+60 XP',isNew:false},
+  {n:'???',i:'ti-lock',b:'#f0f2f8',t:'#9499b5',xp:'',isNew:false},
+  {n:'???',i:'ti-lock',b:'#f0f2f8',t:'#9499b5',xp:'',isNew:false},
+  {n:'???',i:'ti-lock',b:'#f0f2f8',t:'#9499b5',xp:'',isNew:false},
+  {n:'???',i:'ti-lock',b:'#f0f2f8',t:'#9499b5',xp:'',isNew:false},
+];
+
+const BADGE_DATA=[
+  {n:'Bintang Bahasa',em:'⭐',bg:'#EEEDFE',tc:'#4a41b0',date:'12 Jun'},
+  {n:'Juara Streak',em:'🔥',bg:'#FAEEDA',tc:'#7c4700',date:'10 Jun'},
+  {n:'Master IPA',em:'🔬',bg:'#EAF3DE',tc:'#2d6a0a',date:'5 Jun'},
+  {n:'Rajin Belajar',em:'📚',bg:'#E6F1FB',tc:'#185FA5',date:'1 Jun'},
+  {n:'Explorer',em:'🧭',bg:'#E1F5EE',tc:'#0a5e49',date:'28 Mei'},
+];
+
+const TARGET_NEXCARD=[
+  {n:'Matematika Gold',i:'ti-math-symbols',bg:'#E6F1FB',tc:'#185FA5',prog:70,xp:'Butuh 30 XP lagi'},
+  {n:'IPS Expert',i:'ti-world',bg:'#FAEEDA',tc:'#7c4700',prog:40,xp:'Butuh 60 XP lagi'},
+  {n:'Streak Legend',i:'ti-flame',bg:'#FCEBEB',tc:'#9b2626',prog:80,xp:'3 hari lagi'},
+];
+
+const LAPORAN_GURU=[
+  {tgl:'12 Jun 2026',guru:'Bu Sari Wulandari',subj:'Laporan Bulanan Juni',isi:'Arini menunjukkan perkembangan yang sangat baik bulan ini. Capaian matematika meningkat 8% dan konsisten mempertahankan posisi 3 besar kelas.',gaya:'Visual',reko:'Perbanyak latihan IPS, terutama Bab 3 yang masih 65%. Perlu perhatian pada sesi sore hari karena energi lebih banyak.'},
+];
+
+const REKO_ORTU=[
+  {kat:'Belajar',ico:'ti-player-play',bg:'var(--teal-lt)',tc:'var(--teal)',saran:'Dampingi Arini saat NexFlix Edu IPA Bab 4 hari ini — materi baru yang membutuhkan diskusi'},
+  {kat:'Aktivitas',ico:'ti-run',bg:'var(--green-lt)',tc:'var(--green)',saran:'Setelah belajar, ajak Arini istirahat 20 menit sebelum sesi malam agar konsentrasi tetap optimal'},
+  {kat:'Bacaan',ico:'ti-book',bg:'var(--purple-lt)',tc:'var(--purple)',saran:'Rekomendasikan: "Sains Seru untuk Anak SD" — selaras dengan IPA Bab 4 yang sedang dipelajari'},
+  {kat:'Reward',ico:'ti-gift',bg:'var(--amber-lt)',tc:'var(--amber)',saran:'Arini hampir mencapai streak 14 hari! Berikan apresiasi kecil untuk mendorong konsistensi'},
+];
+
+const AGENDA_ANAK=[
+  {tgl:'12 Jun',nama:'Ujian NexWorld Matematika',tp:'Ujian',c:'#E6F1FB',t:'#185FA5'},
+  {tgl:'14 Jun',nama:'Sesi NexBot IPA bersama Bu Sari',tp:'Belajar',c:'#EAF3DE',t:'#2d6a0a'},
+  {tgl:'17 Jun',nama:'Pengumpulan portofolio bulan Juni',tp:'Tugas',c:'#FAEEDA',t:'#7c4700'},
+  {tgl:'20 Jun',nama:'Ujian IPA Bab 4',tp:'Ujian',c:'#E6F1FB',t:'#185FA5'},
+];
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+const TITLES={
+  overview:[`Ringkasan Perkembangan ${activeChild.name}`,'Jumat, 12 Juni 2026 · Kelas V-A · SDN NEXORA 1'],
+  perkembangan:['Grafik Perkembangan','Tren motivasi, durasi, dan XP'],
+  materi:['Capaian Materi','Penguasaan per mata pelajaran'],
+  mood:['Mood & Emosi','Histori kondisi emosional anak'],
+  nexcard:['NexCard Anak','Koleksi kartu pencapaian'],
+  jurnal:['Jurnal Saya','Catatan observasi harian di rumah'],
+  portofolio:['Portofolio Anak','Karya dan pencapaian anak'],
+  observasi:['Form Observasi','Laporan terstruktur untuk guru'],
+  laporan:['Laporan dari Guru','Evaluasi pedagogi dan rekomendasi'],
+  rekomendasi:['Rekomendasi AI','Saran belajar personal untuk anak'],
+  kalender:['Jadwal & Agenda','Kegiatan dan ujian mendatang'],
+  pengaturan:['Pengaturan','Profil dan preferensi akun'],
+};
+let initialized={};
+
+function showSec(id){
+  document.querySelectorAll('.sec').forEach(e=>e.classList.remove('on'));
+  document.getElementById('sec-'+id).classList.add('on');
+  document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('on'));
+  document.querySelector(`.sb-item[data-sec="${id}"]`).classList.add('on');
+  const t=TITLES[id]||['',''];
+  document.getElementById('pg-title').textContent=t[0];
+  document.getElementById('pg-sub').textContent=t[1];
+  if(!initialized[id]){initialized[id]=true;setTimeout(()=>initSec(id),60);}
+  closeNotif();
+}
+document.querySelectorAll('.sb-item').forEach(el=>{
+  el.addEventListener('click',()=>showSec(el.dataset.sec));
+});
+
+function initSec(id){
+  if(id==='perkembangan'){initChart('ch-motivasi');initChart('ch-durasi');initChart('ch-xp');}
+  if(id==='materi'){renderMateriDetail();initChart('ch-mapel');renderKKM();}
+  if(id==='mood'){initChart('ch-mood-2w');initChart('ch-mood-d');}
+  if(id==='nexcard'){renderNexcardAnak();renderBadge();renderTargetNexcard();}
+  if(id==='jurnal')renderJurnalRiwayat();
+  if(id==='portofolio')renderPorto();
+  if(id==='laporan')renderLaporan();
+  if(id==='rekomendasi')renderReko();
+  if(id==='kalender'){renderCalendar();renderAgenda();}
+  if(id==='pengaturan')renderAnakList();
+}
+
+// ══════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════
+function pctColor(p){return p>=80?'var(--teal)':p>=65?'#EF9F27':'var(--red)'}
+
+function renderKompetensi(){
+  document.getElementById('kompetansi-list').innerHTML=MAPEL.map(m=>`
+    <div class="prog-row">
+      <div class="prog-ico" style="background:${m.b};color:${m.t}"><i class="ti ${m.i}"></i></div>
+      <div class="prog-info">
+        <div class="prog-name">${m.n}</div>
+        <div class="prog-lv">${m.lv}</div>
+        <div class="pbar"><div class="pfill" style="width:${m.pct}%;background:${pctColor(m.pct)}"></div></div>
+      </div>
+      <div class="ppct">${m.pct}%</div>
+    </div>`).join('');
+}
+
+function renderActivitiesFeed(){
+  document.getElementById('live-feed').innerHTML=ACTIVITIES_ANAK.map(a=>`
+    <div class="ai">
+      <div class="aico" style="background:${a.bg};color:${a.ic}"><i class="ti ${a.icon}"></i></div>
+      <div class="abody"><div class="atxt">${a.txt}</div><div class="atm">${a.tm}</div></div>
+    </div>`).join('');
+}
+
+function renderMateriDetail(){
+  document.getElementById('materi-detail').innerHTML=MAPEL.map(m=>`
+    <div class="prog-row">
+      <div class="prog-ico" style="background:${m.b};color:${m.t}"><i class="ti ${m.i}"></i></div>
+      <div class="prog-info">
+        <div class="prog-name">${m.n} · ${m.lv}</div>
+        <div class="pbar"><div class="pfill" style="width:${m.pct}%;background:${pctColor(m.pct)}"></div></div>
+      </div>
+      <div class="ppct">${m.pct}%</div>
+    </div>`).join('');
+}
+
+function renderKKM(){
+  document.getElementById('kkm-list').innerHTML=MAPEL.map(m=>{
+    const passed=m.pct>=m.kkm;
+    return`<div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:${passed?m.b:'var(--bg)'};border-radius:10px;border:1px solid ${passed?m.t+'30':'var(--border)'}">
+      <div style="width:32px;height:32px;border-radius:9px;background:${m.b};color:${m.t};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0"><i class="ti ${m.i}"></i></div>
+      <div style="flex:1"><div style="font-size:12.5px;font-weight:600;color:var(--txt)">${m.n}</div><div style="font-size:10.5px;color:var(--txt2)">KKM: ${m.kkm} · Capaian: ${m.pct}</div></div>
+      <span class="pill ${passed?'p-ok':'p-wn'}">${passed?'Tuntas':'Belum Tuntas'}</span>
+    </div>`;}).join('');
+}
+
+function renderNexcardAnak(){
+  document.getElementById('nexcard-anak').innerHTML=NEXCARD_ANAK.map(c=>`
+    <div class="ncrd ${c.n==='???'?'':''}${c.isNew?'ncrd-new':''}" style="background:${c.b};border-color:${c.t}40">
+      <i class="ti ${c.i}" style="color:${c.t}"></i>
+      <div class="ncrd-n" style="color:${c.t}">${c.n}</div>
+      ${c.xp?`<div class="ncrd-x" style="color:${c.t}">${c.xp}</div>`:''}
+    </div>`).join('');
+}
+
+function renderBadge(){
+  document.getElementById('badge-list').innerHTML=BADGE_DATA.map(b=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:11px 13px;background:${b.bg};border-radius:10px">
+      <div style="font-size:24px">${b.em}</div>
+      <div style="flex:1"><div style="font-size:12.5px;font-weight:700;color:${b.tc}">${b.n}</div><div style="font-size:10px;color:var(--txt3);margin-top:1px">Diraih ${b.date}</div></div>
+      <i class="ti ti-check-circle" style="color:${b.tc};font-size:18px"></i>
+    </div>`).join('');
+}
+
+function renderTargetNexcard(){
+  document.getElementById('target-nexcard').innerHTML=TARGET_NEXCARD.map(t=>`
+    <div style="padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="width:30px;height:30px;border-radius:8px;background:${t.bg};color:${t.tc};display:flex;align-items:center;justify-content:center;font-size:14px"><i class="ti ${t.i}"></i></div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--txt)">${t.n}</div><div style="font-size:10.5px;color:var(--txt2)">${t.xp}</div></div>
+        <span style="font-size:12px;font-weight:700;color:${t.tc}">${t.prog}%</span>
+      </div>
+      <div class="pbar"><div class="pfill" style="width:${t.prog}%;background:${t.tc}"></div></div>
+    </div>`).join('');
+}
+
+function renderJurnalRiwayat(){
+  document.getElementById('jurnal-riwayat').innerHTML=JURNAL_DATA.map(j=>`
+    <div class="jcard">
+      <div class="jcard-top">
+        <div style="display:flex;align-items:center;gap:6px"><span class="jcard-mood">${j.mood}</span><span class="jcard-date">${j.tgl}</span></div>
+        <span class="jcard-dur">${j.dur}</span>
+      </div>
+      <div class="jcard-txt">${j.isi}</div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="btn btn-s" style="font-size:11px;padding:4px 10px"><i class="ti ti-pencil"></i>Edit</button>
+        <button class="btn btn-s" style="font-size:11px;padding:4px 10px"><i class="ti ti-eye"></i>Lihat</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderPorto(){
+  document.getElementById('porto-list').innerHTML=PORTO_DATA.map(p=>`
+    <div class="porto-card">
+      <div class="porto-top">
+        <div class="porto-ico" style="background:${p.bg};color:${p.tc}"><i class="ti ${p.ico}"></i></div>
+        <div style="flex:1"><div class="porto-title">${p.n}</div><div class="porto-date">${p.mapel} · ${p.date}</div></div>
+        <button class="btn btn-s" style="padding:5px 10px;font-size:11px"><i class="ti ti-download"></i></button>
+      </div>
+      <div class="porto-desc">${p.desc}</div>
+    </div>`).join('');
+}
+
+function renderLaporan(){
+  document.getElementById('laporan-guru').innerHTML=LAPORAN_GURU.map(l=>`
+    <div class="pnl">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#0f7a62);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff">BS</div>
+        <div><div style="font-size:13px;font-weight:700">${l.guru}</div><div style="font-size:10.5px;color:var(--txt2);">${l.tgl} · ${l.subj}</div></div>
+        <span class="pill p-in" style="margin-left:auto">Laporan Bulanan</span>
+      </div>
+      <div style="font-size:12.5px;color:var(--txt);line-height:1.7;margin-bottom:12px">${l.isi}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div style="padding:12px;background:var(--teal-lt);border-radius:10px"><div style="font-size:10.5px;color:var(--teal);font-weight:700;margin-bottom:3px">GAYA BELAJAR</div><div style="font-size:13px;font-weight:700;color:var(--txt)">${l.gaya}</div></div>
+        <div style="padding:12px;background:var(--purple-lt);border-radius:10px"><div style="font-size:10.5px;color:var(--purple);font-weight:700;margin-bottom:3px">REKOMENDASI</div><div style="font-size:12px;color:var(--txt);line-height:1.4">${l.reko}</div></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-s btn-full"><i class="ti ti-download"></i>Unduh PDF</button>
+        <button class="btn btn-p btn-full"><i class="ti ti-message-reply"></i>Balas Guru</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderReko(){
+  document.getElementById('reko-ortu').innerHTML=REKO_ORTU.map(r=>`
+    <div style="padding:14px;background:var(--bg);border-radius:12px;border:1px solid var(--border)">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="width:34px;height:34px;border-radius:9px;background:${r.bg};color:${r.tc};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0"><i class="ti ${r.ico}"></i></div>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:700;color:${r.tc};margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">${r.kat}</div>
+          <div style="font-size:12.5px;color:var(--txt);line-height:1.5">${r.saran}</div>
+        </div>
+        <span class="pill p-tl" style="flex-shrink:0">Hari ini</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderCalendar(){
+  const g=document.getElementById('cal-grid');
+  const evDays=[12,14,17,20];
+  let html='<div class="cald other"></div>';
+  for(let i=1;i<=30;i++){
+    html+=`<div class="cald ${i===12?'today':''} ${evDays.includes(i)&&i!==12?'ev':''}">${i}</div>`;
+  }
+  g.innerHTML=html;
+}
+
+function renderAgenda(){
+  document.getElementById('agenda-anak').innerHTML=AGENDA_ANAK.map(a=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 13px;background:${a.c};border-radius:10px">
+      <div style="width:38px;text-align:center;font-size:10.5px;font-weight:800;color:${a.t};flex-shrink:0">${a.tgl}</div>
+      <div style="flex:1"><div style="font-size:12.5px;color:${a.t};font-weight:600">${a.nama}</div><div style="font-size:10px;color:${a.t};opacity:.7;margin-top:1px">${a.tp}</div></div>
+    </div>`).join('');
+}
+
+function renderAnakList(){
+  document.getElementById('anak-list').innerHTML=CHILDREN.map(c=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;${c.id===activeChild.id?'background:var(--teal-lt);border:1px solid var(--teal-md)':'background:var(--bg)'}cursor:pointer" onclick="switchChild(${c.id})">
+      <div style="width:34px;height:34px;border-radius:50%;background:${c.c};color:${c.tc};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">${c.init}</div>
+      <div style="flex:1"><div style="font-size:12.5px;font-weight:600">${c.name}</div><div style="font-size:10.5px;color:var(--txt2)">Kelas ${c.class}</div></div>
+      ${c.id===activeChild.id?'<i class="ti ti-check-circle" style="color:var(--teal);font-size:18px"></i>':''}
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// CHILD SWITCHER
+// ══════════════════════════════════════════
+function openChildModal(){
+  document.getElementById('child-modal').style.display='flex';
+  document.getElementById('child-list').innerHTML=CHILDREN.map(c=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;cursor:pointer;background:${c.id===activeChild.id?'var(--teal-lt)':'var(--bg)'};margin-bottom:6px;border:1px solid ${c.id===activeChild.id?'var(--teal-md)':'transparent'}" onclick="switchChild(${c.id})">
+      <div style="width:42px;height:42px;border-radius:50%;background:${c.c};color:${c.tc};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">${c.init}</div>
+      <div><div style="font-size:13px;font-weight:700">${c.name}</div><div style="font-size:11px;color:var(--txt2);margin-top:2px">Kelas ${c.class} · Lv.${c.lv} · ${c.mood}</div></div>
+      ${c.id===activeChild.id?`<span class="pill p-tl" style="margin-left:auto">Aktif</span>`:''}
+    </div>`).join('');
+}
+function closeChildModal(){document.getElementById('child-modal').style.display='none';}
+function switchChild(id){
+  activeChild=CHILDREN.find(c=>c.id===id);
+  document.getElementById('sw-ava').textContent=activeChild.init;
+  document.getElementById('sw-name').textContent=activeChild.name;
+  document.getElementById('sw-class').textContent=`Kelas ${activeChild.class} · SDN NEXORA 1`;
+  document.getElementById('hero-ava').textContent=activeChild.init;
+  document.getElementById('hero-name').textContent=activeChild.name;
+  document.getElementById('hero-mood').textContent=activeChild.mood;
+  document.getElementById('h-lv').textContent=`Lv.${activeChild.lv}`;
+  document.getElementById('h-xp').textContent=activeChild.xp.toLocaleString();
+  document.getElementById('h-streak').textContent=`${activeChild.streak}🔥`;
+  document.getElementById('h-card').textContent=activeChild.nexcard;
+
+  // Refresh sections that depend on current child selection.
+  // (Today all data masih hardcoded, tapi render ulang mencegah UI stale saat data diganti nanti.)
+  renderKompetensi();
+  renderActivitiesFeed();
+  renderMateriDetail();
+  renderKKM();
+  renderNexcardAnak();
+  renderBadge();
+  renderTargetNexcard();
+  renderJurnalRiwayat();
+  renderPorto();
+  renderLaporan();
+  renderReko();
+  renderCalendar();
+  renderAgenda();
+
+  closeChildModal();
+}
+
+
+// ══════════════════════════════════════════
+// ANIMATED COUNTER
+// ══════════════════════════════════════════
+function animCnt(id,target,suf='',dur=1200){
+  const el=document.getElementById(id);if(!el)return;
+  let steps=45,st=0;
+  const tm=setInterval(()=>{st++;const v=Math.round(target*(st/steps));el.textContent=v+suf;if(st>=steps)clearInterval(tm);},dur/steps);
+}
+function animBars(){
+  setTimeout(()=>{document.querySelectorAll('.sc-fill[data-w]').forEach(el=>{el.style.width=el.dataset.w+'%';});},200);
+}
+
+// ══════════════════════════════════════════
+// CHARTS
+// ══════════════════════════════════════════
+const CHARTS={};
+const FONT='Plus Jakarta Sans';
+const gc='rgba(0,0,0,0.04)';
+const tf={family:FONT,size:10};
+const lf={family:FONT,size:11};
+
+function mkChart(id,cfg){
+  if(CHARTS[id])CHARTS[id].destroy();
+  const el=document.getElementById(id);if(!el)return;
+  CHARTS[id]=new Chart(el,cfg);
+}
+
+function initHomeCharts(){
+  mkChart('ch-weekly',{type:'bar',data:{
+    labels:['Sen','Sel','Rab','Kam','Jum','Sab','Min'],
+    datasets:[
+      {label:'Durasi Belajar (mnt)',data:[35,42,20,50,42,15,8],backgroundColor:'#0a5e49',borderRadius:7,borderSkipped:false},
+      {label:'Misi Selesai',data:[2,3,1,4,3,1,0],backgroundColor:var_gold(),borderRadius:7,borderSkipped:false,yAxisID:'y2'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:lf}}},scales:{y:{grid:{color:gc},ticks:{font:tf},title:{display:true,text:'Menit',font:tf}},y2:{position:'right',grid:{display:false},ticks:{font:tf},title:{display:true,text:'Misi',font:tf}},x:{grid:{display:false},ticks:{font:{...tf,size:11}}}}}
+  });
+}
+function var_gold(){return '#f5a623';}
+
+function initChart(id){
+  if(id==='ch-motivasi') mkChart('ch-motivasi',{type:'line',data:{
+    labels:['Sen','Sel','Rab','Kam','Jum','Sab','Min'],
+    datasets:[
+      {label:'Motivasi (%)',data:[80,85,70,90,88,60,50],borderColor:'#0a5e49',backgroundColor:'rgba(10,94,73,.1)',fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#0a5e49'},
+      {label:'Partisipasi (%)',data:[75,80,65,85,82,55,45],borderColor:'#f5a623',backgroundColor:'rgba(245,166,35,.08)',fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#f5a623'},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:lf}}},scales:{y:{grid:{color:gc},ticks:{font:tf}},x:{grid:{display:false},ticks:{font:tf}}}}
+  });
+  if(id==='ch-durasi') mkChart('ch-durasi',{type:'bar',data:{
+    labels:['Sen','Sel','Rab','Kam','Jum','Sab','Min'],
+    datasets:[{label:'Durasi (mnt)',data:[35,42,20,50,42,15,8],backgroundColor:['#0a5e49','#0a5e49','#EF9F27','#0a5e49','#0a5e49','#9b2626','#9b2626'],borderRadius:8,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:gc},ticks:{font:tf}},x:{grid:{display:false},ticks:{font:tf}}}}
+  });
+  if(id==='ch-xp') mkChart('ch-xp',{type:'line',data:{
+    labels:['M1 Mei','M2 Mei','M3 Mei','M4 Mei','M1 Jun','M2 Jun'],
+    datasets:[{label:'XP Terkumpul',data:[450,620,580,720,800,840],borderColor:'#4a41b0',backgroundColor:'rgba(74,65,176,.1)',fill:true,tension:.4,pointRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:gc},ticks:{font:tf}},x:{grid:{display:false},ticks:{font:tf}}}}
+  });
+  if(id==='ch-mapel') mkChart('ch-mapel',{type:'doughnut',data:{
+    labels:['Matematika','IPA','IPS','B. Indonesia','Seni'],
+    datasets:[{data:[88,72,65,92,80],backgroundColor:['#185FA5','#2d6a0a','#7c4700','#4a41b0','#a0226e'],borderWidth:2,borderColor:'#fff',hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{labels:{font:{...lf,size:10}}}}}
+  });
+  if(id==='ch-mood-2w') mkChart('ch-mood-2w',{type:'bar',data:{
+    labels:['S','S','R','K','J','M1','M2','S','S','R','K','J','S','M'],
+    datasets:[
+      {label:'Senang',data:[1,0,0,1,1,1,0,1,1,0,1,1,0,0],backgroundColor:'#2d6a0a',borderRadius:4},
+      {label:'Fokus',data:[0,1,0,0,0,0,1,0,0,1,0,0,1,0],backgroundColor:'#185FA5',borderRadius:4},
+      {label:'Lelah',data:[0,0,1,0,0,0,0,0,0,0,0,0,0,1],backgroundColor:'#7c4700',borderRadius:4},
+      {label:'Bosan',data:[0,0,0,0,0,0,0,0,0,0,0,0,0,0],backgroundColor:'#9b2626',borderRadius:4},
+    ]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{stacked:true,display:false},x:{stacked:true,grid:{display:false},ticks:{font:tf}}},plugins:{legend:{labels:{font:lf}}}}
+  });
+  if(id==='ch-mood-d') mkChart('ch-mood-d',{type:'doughnut',data:{
+    labels:['Senang','Fokus','Lelah','Bosan'],
+    datasets:[{data:[8,3,2,1],backgroundColor:['#2d6a0a','#185FA5','#7c4700','#9b2626'],borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}
+  });
+}
+
+// ══════════════════════════════════════════
+// LIVE FEED SIMULATION
+// ══════════════════════════════════════════
+const LIVE_POOL=[
+  {icon:'ti-trophy',bg:'#EAF3DE',ic:'#2d6a0a',txt:'Arini naik ke <b>Level 9</b>! 🎉',tm:'Baru saja'},
+  {icon:'ti-player-play',bg:'#E6F1FB',ic:'#185FA5',txt:'Arini memulai sesi NexFlix <b>IPA Bab 4</b>',tm:'Baru saja'},
+  {icon:'ti-cards',bg:'#EEEDFE',ic:'#4a41b0',txt:'Arini mendapat NexCard <b>Matematika Gold</b>',tm:'Baru saja'},
+  {icon:'ti-flame',bg:'#FAEEDA',ic:'#7c4700',txt:'Streak <b>13 hari</b> tercapai!',tm:'Baru saja'},
+];
+let liIdx=0;
+function addLive(){
+  const feed=document.getElementById('live-feed');if(!feed)return;
+  const a=LIVE_POOL[liIdx%LIVE_POOL.length];liIdx++;
+  const d=document.createElement('div');d.className='ai';
+  d.innerHTML=`<div class="aico" style="background:${a.bg};color:${a.ic}"><i class="ti ${a.icon}"></i></div><div class="abody"><div class="atxt">${a.txt}</div><div class="atm">${a.tm}</div></div>`;
+  feed.insertBefore(d,feed.firstChild);
+  if(feed.children.length>5)feed.removeChild(feed.lastChild);
+}
+
+// ══════════════════════════════════════════
+// NOTIF
+// ══════════════════════════════════════════
+function toggleNotif(){document.getElementById('notif-panel').classList.toggle('show')}
+function closeNotif(){document.getElementById('notif-panel').classList.remove('show')}
+document.addEventListener('click',e=>{if(!e.target.closest('#notif-btn')&&!e.target.closest('#notif-panel'))closeNotif();});
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded',()=>{
+  renderKompetensi();
+  renderActivitiesFeed();
+  animCnt('c-capaian',88,'%');
+  animCnt('c-durasi',42,' mnt');
+  animCnt('c-nexcard',24);
+  animCnt('c-streak',12,' hari');
+  animBars();
+  setTimeout(initHomeCharts,150);
+  setInterval(addLive,8000);
+  initialized['overview']=true;
+});
+</script>
+<script>
+// Tambah data-label ke sidebar items untuk bottom nav HP
+(function(){
+  const labels = {
+    'overview':'Beranda','perkembangan':'Grafik','materi':'Materi',
+    'mood':'Mood','nexcard':'Kartu','jurnal':'Jurnal',
+    'portofolio':'Porto','observasi':'Obs','laporan':'Laporan',
+    'rekomendasi':'AI','kalender':'Jadwal','pengaturan':'Atur'
+  };
+  document.querySelectorAll('.sb-item[data-sec]').forEach(el=>{
+    const sec = el.dataset.sec;
+    if(labels[sec]) el.setAttribute('data-label', labels[sec]);
+  });
+})();
+</script>
+</body>
+</html>

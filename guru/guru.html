@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXBOARD — Dashboard Guru</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<!-- styles loaded from ../styles/guru.css -->
+<link rel="stylesheet" href="../styles/guru.css">
+
+<style>
+.sb-logo-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.sb-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--gold),#e8940f);
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:800;color:var(--navy);flex-shrink:0
+}
+.sb-name{font-size:17px;font-weight:800;color:#fff;letter-spacing:.3px}
+.sb-name em{color:var(--gold);font-style:normal}
+.sb-sub{font-size:9.5px;color:rgba(255,255,255,0.28);letter-spacing:2px;text-transform:uppercase}
+.sb-nav{flex:1;overflow-y:auto;padding:10px 0;min-height:0}
+.sb-nav::-webkit-scrollbar{width:0}
+.sb-sec{font-size:9px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2px;text-transform:uppercase;padding:12px 20px 4px}
+.sb-item{
+  display:flex;align-items:center;gap:11px;
+  padding:9px 20px;font-size:13px;font-weight:500;
+  color:rgba(255,255,255,0.5);cursor:pointer;
+  border-left:3px solid transparent;
+  transition:all .18s;user-select:none;
+}
+.sb-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.04)}
+.sb-item.on{color:#fff;background:rgba(245,166,35,.13);border-left-color:var(--gold)}
+.sb-item i{font-size:17px;flex-shrink:0}
+.sb-badge{
+  margin-left:auto;padding:1px 7px;border-radius:20px;
+  font-size:9.5px;font-weight:700;background:var(--gold);color:var(--navy)
+}
+.sb-badge.rd{background:#e24b4a;color:#fff}
+.sb-badge.gr{background:var(--green);color:#fff}
+.sb-user{
+  padding:14px 18px;border-top:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;gap:10px
+}
+.sb-ava{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),#e8940f);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;color:var(--navy);flex-shrink:0
+}
+.sb-uname{font-size:12.5px;font-weight:700;color:#fff}
+.sb-urole{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px}
+.sb-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;margin-left:auto;flex-shrink:0;box-shadow:0 0 0 2px rgba(74,222,128,.3)}
+
+/* ─── MAIN ─── */
+
+.main{flex:1;display:flex;flex-direction:column;min-height:100vh;overflow:hidden;min-width:0}
+
+.content{min-height:0; min-width:0;}
+
+
+/* ─── TOPBAR ─── */
+.top{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:0 28px;height:60px;
+  display:flex;align-items:center;gap:14px;flex-shrink:0;
+  box-shadow:0 1px 0 rgba(0,0,0,0.04);
+}
+.top-title{flex:1}
+.top-title h1{font-size:16px;font-weight:700;color:var(--txt)}
+.top-title p{font-size:11px;color:var(--txt2);margin-top:1px}
+.top-search{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:10px;padding:7px 12px;width:220px;
+}
+.top-search input{border:none;background:none;outline:none;font-size:12.5px;color:var(--txt);font-family:inherit;width:100%}
+.top-search i{color:var(--txt3);font-size:15px;flex-shrink:0}
+.top-btn{
+  width:36px;height:36px;border-radius:9px;
+  border:1px solid var(--border);background:var(--bg2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--txt2);font-size:17px;
+  transition:all .15s;position:relative;
+}
+.top-btn:hover{background:var(--bg);color:var(--blue)}
+.top-btn .bdot{
+  width:7px;height:7px;background:#e24b4a;border-radius:50%;
+  position:absolute;top:5px;right:5px;border:2px solid var(--bg2)
+}
+
+/* ─── CONTENT SCROLL ─── */
+.content{flex:1;overflow-y:auto;padding:24px 28px;min-height:0}
+.content::-webkit-scrollbar{width:5px}
+.content::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.1);border-radius:3px}
+
+/* ─── SECTIONS ─── */
+.sec{display:none;animation:fadeUp .25s ease;min-width:0}
+.sec.on{display:block;min-width:0}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── PAGE TABS ─── */
+.ptabs{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:3px;width:fit-content;margin-bottom:20px}
+.ptab{padding:7px 18px;border-radius:8px;font-size:12.5px;font-weight:500;cursor:pointer;color:var(--txt2);transition:all .15s}
+.ptab.on{background:var(--navy);color:#fff;box-shadow:var(--sh)}
+
+/* ─── STAT CARDS ─── */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;min-width:0;margin-bottom:20px;min-width:0}
+
+.sc{min-width:0;overflow:hidden;
+  background:var(--bg2);border-radius:var(--r);border:1px solid var(--border);
+  padding:18px 20px;box-shadow:var(--sh);
+  transition:transform .2s,box-shadow .2s;cursor:default;
+}
+.sc:hover{transform:translateY(-3px);box-shadow:var(--sh-md)}
+.sc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.sc-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.sc-badge{font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:20px;display:flex;align-items:center;gap:3px}
+.up{background:var(--green-lt);color:var(--green)}
+.dn{background:var(--red-lt);color:var(--red)}
+.wn{background:var(--amber-lt);color:var(--amber)}
+.sc-val{font-size:28px;font-weight:800;color:var(--txt);line-height:1}
+.sc-lbl{font-size:11.5px;color:var(--txt2);margin-top:4px}
+.sc-bar{height:4px;border-radius:2px;background:var(--bg3);margin-top:12px;overflow:hidden}
+.sc-fill{height:100%;border-radius:2px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+
+/* ─── PANEL ─── */
+.pnl{background:var(--bg2);border-radius:var(--r);border:1px solid var(--border);padding:20px;box-shadow:var(--sh);min-width:0;overflow:hidden}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.pt{font-size:13.5px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:8px}
+.pt i{font-size:17px}
+.pa{font-size:11.5px;color:var(--blue);cursor:pointer;font-weight:500;display:flex;align-items:center;gap:3px}
+.pa:hover{text-decoration:underline}
+
+/* ─── GRID LAYOUTS ─── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;min-width:0;margin-bottom:16px}
+.g3{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;min-width:0;margin-bottom:16px}
+.g3c{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;min-width:0;margin-bottom:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;min-width:0;margin-bottom:16px}
+
+/* ─── ALERT BANNER ─── */
+.alert{
+  background:rgba(162,45,45,0.06);border:1px solid rgba(162,45,45,0.18);
+  border-radius:10px;padding:11px 16px;margin-bottom:18px;
+  display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--txt);
+}
+.alert i{color:var(--red);font-size:17px;flex-shrink:0}
+.alert-x{margin-left:auto;cursor:pointer;color:var(--txt3);font-size:14px}
+
+/* ─── STUDENT LIST ─── */
+.slist{display:flex;flex-direction:column;gap:1px}
+.srow{
+  display:flex;align-items:center;gap:12px;padding:9px 12px;
+  border-radius:10px;transition:background .12s;cursor:pointer;
+}
+.srow:hover{background:var(--bg)}
+.ava{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11.5px;font-weight:700;
+}
+.si{flex:1;min-width:0}
+.sn{font-size:12.5px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sm{font-size:10.5px;color:var(--txt2);margin-top:1px}
+.pcol{width:75px}
+.pbar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:3px}
+.pfill{height:100%;border-radius:3px;transition:width 1.2s ease}
+.ppct{font-size:9.5px;color:var(--txt3);text-align:right;margin-top:2px}
+
+/* ─── PILL ─── */
+.pill{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.p-ok{background:var(--green-lt);color:var(--green)}
+.p-wn{background:var(--amber-lt);color:var(--amber)}
+.p-bd{background:var(--red-lt);color:var(--red)}
+.p-tp{background:var(--purple-lt);color:var(--purple)}
+.p-in{background:var(--blue-lt);color:var(--blue)}
+.p-pk{background:var(--pink-lt);color:var(--pink)}
+
+/* ─── MOOD CARDS ─── */
+.moodg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mcard{
+  background:var(--bg);border-radius:12px;padding:14px;text-align:center;
+  border:1px solid var(--border);transition:transform .18s,box-shadow .18s;cursor:default;
+}
+.mcard:hover{transform:scale(1.04);box-shadow:var(--sh-md)}
+.mcard-em{font-size:30px;margin-bottom:6px}
+.mcard-n{font-size:11.5px;font-weight:600;color:var(--txt)}
+.mcard-c{font-size:22px;font-weight:800;line-height:1.1;margin-top:2px}
+.mcard-p{font-size:10px;color:var(--txt3);margin-top:2px}
+
+/* ─── ACTIVITY ─── */
+.afd{display:flex;flex-direction:column}
+.ai{
+  display:flex;gap:11px;padding:9px 0;
+  border-bottom:1px solid var(--border);
+  animation:fadeSlide .3s ease;
+}
+.ai:last-child{border-bottom:none}
+@keyframes fadeSlide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.aico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.abody{flex:1}
+.atxt{font-size:12px;color:var(--txt);line-height:1.5}
+.atxt b{font-weight:700}
+.atm{font-size:10px;color:var(--txt3);margin-top:2px}
+
+/* ─── NEXBOT PANEL ─── */
+.nbh{
+  display:flex;align-items:center;gap:10px;padding:13px 15px;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);
+  border-radius:12px;margin-bottom:14px;
+}
+.nbava{
+  width:38px;height:38px;border-radius:50%;background:var(--gold);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.nbt{font-size:13.5px;font-weight:700;color:#fff}
+.nbs{font-size:10.5px;color:rgba(255,255,255,.45);margin-top:1px}
+.nblive{
+  margin-left:auto;background:#4ade80;color:var(--navy);
+  font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:.5px;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.nbmsg{
+  background:var(--bg);border-radius:4px 12px 12px 12px;
+  padding:11px 13px;font-size:12.5px;color:var(--txt);line-height:1.65;
+  margin-bottom:10px;border:1px solid var(--border);
+}
+.nbrco{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.nritem{
+  display:flex;align-items:flex-start;gap:8px;padding:9px 12px;
+  border-radius:10px;font-size:12px;line-height:1.4;color:var(--txt);
+  border:1px solid var(--border);background:var(--bg2);
+}
+.nritem i{font-size:14px;flex-shrink:0;margin-top:1px}
+
+/* ─── LEADERBOARD ─── */
+.lbr{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;transition:background .12s;cursor:default}
+.lbr:hover{background:var(--bg)}
+.lbrank{width:22px;text-align:center;font-size:14px;font-weight:800;color:var(--txt3)}
+.lbrank.r1{color:var(--gold)}
+.lbrank.r2{color:#9499b5}
+.lbrank.r3{color:#CD7F32}
+.lbxp{margin-left:auto;font-size:12px;font-weight:700;color:var(--purple);background:var(--purple-lt);padding:3px 9px;border-radius:20px}
+
+/* ─── NEXCARD GALLERY ─── */
+.ncg{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;min-width:0}
+.ncrd{
+  aspect-ratio:3/4;border-radius:12px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:5px;cursor:pointer;
+  border:1.5px solid transparent;transition:transform .2s,box-shadow .2s;padding:8px 4px;
+}
+.ncrd:hover{transform:translateY(-5px) rotate(-2deg);box-shadow:var(--sh-md)}
+.ncrd i{font-size:26px}
+.ncrd-n{font-size:9.5px;font-weight:700;text-align:center;line-height:1.2}
+.ncrd-x{font-size:8.5px;font-weight:500;opacity:.7}
+.ncrd-lck{opacity:.4;cursor:default}
+.ncrd-lck:hover{transform:none;box-shadow:none}
+
+/* ─── FORM ─── */
+.fg{margin-bottom:14px}
+.fl{font-size:11.5px;font-weight:700;color:var(--txt2);margin-bottom:5px;display:block}
+.fi,.fsel,.fta{
+  width:100%;padding:9px 12px;border:1px solid var(--border);
+  border-radius:10px;font-size:12.5px;font-family:inherit;color:var(--txt);
+  background:var(--bg2);outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,.1)}
+.fta{resize:vertical;min-height:80px}
+
+/* ─── BUTTONS ─── */
+.btn{
+  padding:9px 18px;border-radius:10px;font-size:12.5px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .15s;border:none;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn-p{background:var(--navy);color:#fff}
+.btn-p:hover{background:var(--navy2)}
+.btn-s{background:var(--bg);color:var(--txt);border:1px solid var(--border)}
+.btn-s:hover{background:var(--bg2);border-color:var(--blue);color:var(--blue)}
+.btn-full{width:100%;justify-content:center}
+.btn-g{background:linear-gradient(135deg,var(--gold),#e8940f);color:var(--navy)}
+.btn-g:hover{opacity:.9}
+
+/* ─── TABLE ─── */
+.tbl{width:100%;border-collapse:collapse;table-layout:fixed}
+.tbl th{text-align:left;padding:10px 12px;font-size:10.5px;font-weight:700;color:var(--txt2);letter-spacing:.3px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tbody tr:hover td{background:var(--bg)}
+.tbl tbody tr:last-child td{border-bottom:none}
+
+/* ─── PROGRESS RING ─── */
+.ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-inner{position:absolute;font-size:14px;font-weight:800;color:var(--txt)}
+
+/* ─── CALENDAR ─── */
+.calg{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.calh{text-align:center;font-size:9px;font-weight:700;color:var(--txt3);padding:4px}
+.cald{
+  text-align:center;font-size:11px;font-weight:500;padding:5px 2px;
+  border-radius:7px;cursor:pointer;color:var(--txt2);transition:all .12s;
+}
+.cald:hover{background:var(--bg)}
+.cald.today{background:var(--navy);color:#fff;font-weight:700}
+.cald.ev::after{content:'';width:4px;height:4px;border-radius:50%;background:var(--gold);display:block;margin:-2px auto 0}
+.cald.other{color:var(--txt3);opacity:.35}
+
+/* ─── PROGRESS CARDS ─── */
+.prog-subject{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border)}
+.prog-subject:last-child{border-bottom:none}
+.prog-ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.prog-info{flex:1}
+.prog-name{font-size:12.5px;font-weight:600;color:var(--txt)}
+.prog-sub{font-size:10.5px;color:var(--txt2);margin-top:1px}
+.prog-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:5px}
+.prog-fill{height:100%;border-radius:3px;transition:width 1.2s ease}
+.prog-pct{font-size:12px;font-weight:700;color:var(--txt);flex-shrink:0;min-width:35px;text-align:right}
+
+/* ─── NOTIFICATION DROPDOWN ─── */
+.notif-panel{
+  position:fixed;top:68px;right:28px;width:320px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  box-shadow:var(--sh-lg);z-index:200;display:none;
+  animation:fadeDown .15s ease;
+}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.notif-panel.show{display:block}
+.np-hd{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.np-title{font-size:13px;font-weight:700;color:var(--txt)}
+.np-all{font-size:11px;color:var(--blue);cursor:pointer}
+.np-item{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+.np-item:hover{background:var(--bg)}
+.np-item:last-child{border-bottom:none}
+.np-ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.np-txt{font-size:12px;color:var(--txt);line-height:1.4}
+.np-tm{font-size:10px;color:var(--txt3);margin-top:2px}
+
+/* ─── DETAIL MODAL ─── */
+.modal-ov{
+  position:fixed;inset:0;background:rgba(10,12,30,.55);
+  z-index:300;display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(3px);
+}
+.modal-ov.show{display:flex}
+.modal{
+  background:var(--bg2);border-radius:var(--rlg);
+  width:600px;max-height:80vh;overflow-y:auto;
+  box-shadow:var(--sh-lg);animation:scaleUp .2s ease;
+}
+@keyframes scaleUp{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.modal-hd{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:16px;font-weight:800;color:var(--txt)}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--txt2)}
+.modal-body{padding:0 24px 24px}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
+
+/* ─── RESPONSIVE MINI ─── */
+.g3{grid-template-columns:1fr}.ncg{grid-template-columns:repeat(4,1fr)}
+.sb-name,.sb-sub,.sb-sec,.sb-uname,.sb-urole,.sb-badge{display:none}.sb-item{padding:12px 0;justify-content:center}.sb-item i{margin:0}.main{width:100%}
+
+/* ════════════════════════════════
+   RESPONSIVE — NEXBOARD GURU
+   HP < 768px | Tablet 768-1050px | Laptop 1050-1300px
+   ════════════════════════════════ */
+
+/* ── Laptop kecil (≤1300px) ── */
+@media(max-width:1300px){
+  .sg{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:1fr}
+  .g3c{grid-template-columns:1fr 1fr}
+  .ncg{grid-template-columns:repeat(4,1fr)}
+  .g4{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ── Tablet (≤1050px) ── */
+@media(max-width:1050px){
+  :root{--sidebar-w:220px}
+  .sb-sec,.sb-badge{display:none}
+  .sb-item{padding:9px 14px;font-size:12px}
+  .content{padding:16px 18px}
+  .sg{grid-template-columns:repeat(2,1fr);gap:10px}
+  .g2,.g3{grid-template-columns:1fr}
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .top{padding:0 18px}
+  .top-search{width:180px}
+  .sc-val{font-size:22px}
+  .tbl th:nth-child(4),.tbl td:nth-child(4),
+  .tbl th:nth-child(5),.tbl td:nth-child(5),
+  .tbl th:nth-child(6),.tbl td:nth-child(6){display:none}
+}
+
+/* ── HP (≤768px) ── */
+@media(max-width:768px){
+  /* Sembunyikan sidebar, tampilkan bottom nav */
+  .sb{
+    position:fixed;bottom:0;left:0;right:0;top:auto;
+    width:100%!important;height:60px;
+    flex-direction:row;z-index:100;
+    border-top:1px solid rgba(255,255,255,.1);
+    box-shadow:0 -4px 20px rgba(0,0,0,.2);
+  }
+  .sb-logo,.sb-nav .sb-sec,.sb-user,.sb-badge,
+  .sb-name,.sb-sub,.sb-uname,.sb-urole{display:none!important}
+  .sb-nav{
+    flex-direction:row!important;
+    display:flex!important;
+    flex:1;overflow:hidden;padding:0;
+    align-items:stretch;
+  }
+  .sb-item{
+    flex:1;flex-direction:column;
+    padding:6px 4px!important;gap:3px!important;
+    border-left:none!important;
+    border-top:3px solid transparent;
+    justify-content:center;align-items:center;
+    font-size:9px!important;
+  }
+  .sb-item i{font-size:20px!important;margin:0!important}
+  .sb-item.on{
+    border-left:none!important;
+    border-top-color:var(--gold)!important;
+    background:rgba(245,166,35,.13)!important;
+  }
+  /* Tampilkan label teks di bawah ikon */
+  .sb-item::after{
+    content:attr(data-label);
+    font-size:9px;font-weight:600;
+    color:rgba(255,255,255,.5);
+    line-height:1;display:block;
+  }
+  .sb-item.on::after{color:var(--gold)}
+
+  /* Main area: kasih padding bawah untuk bottom nav */
+  .main{
+    margin-left:0!important;
+    height:calc(100vh - 60px)!important;
+    width:100%!important;
+  }
+  html,body{overflow:hidden}
+
+
+
+
+
+  /* Topbar */
+  .top{padding:0 14px;height:52px}
+  .top-title h1{font-size:14px}
+  .top-title p{display:none}
+  .top-search{display:none}
+
+  /* Content */
+  .content{padding:14px;padding-bottom:20px}
+
+  /* Semua grid jadi 1 kolom */
+  .sg,.g2,.g3,.g3c,.g4{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+
+  /* Stat cards horizontal scroll */
+  .sg{
+    display:flex!important;
+    flex-direction:row!important;
+    overflow-x:auto!important;
+    gap:10px!important;
+    padding-bottom:4px;
+    scrollbar-width:none;
+  }
+  .sg::-webkit-scrollbar{display:none}
+  .sc{min-width:160px;flex-shrink:0}
+  .sc-val{font-size:22px}
+
+  /* Panel */
+  .pnl{padding:14px}
+
+  /* NexCard gallery */
+  .ncg{
+    grid-template-columns:repeat(3,1fr)!important;
+    gap:8px!important;
+  }
+
+  /* Tabel siswa — sembunyikan kolom kurang penting */
+  .tbl th:nth-child(3),.tbl td:nth-child(3),
+  .tbl th:nth-child(5),.tbl td:nth-child(5),
+  .tbl th:nth-child(6),.tbl td:nth-child(6),
+  .tbl th:nth-child(8),.tbl td:nth-child(8){display:none}
+  .tbl th,.tbl td{padding:8px 6px;font-size:11px}
+
+  /* Modal */
+  .modal{width:95vw!important;max-height:90vh!important}
+
+  /* NexBot panel */
+  .nbh{padding:10px 12px}
+  .nbt{font-size:12px}
+
+  /* Page tabs */
+  .ptabs{width:100%}
+  .ptab{flex:1;text-align:center;padding:7px 8px;font-size:11px}
+
+  /* Alert */
+  .alert{font-size:11.5px;padding:9px 12px}
+
+  /* Leaderboard XP badge */
+  .lbxp{font-size:11px;padding:2px 7px}
+
+  /* Notif panel */
+  .notif-panel{width:calc(100vw - 28px)!important;right:14px!important}
+}
+
+/* ── HP kecil (≤480px) ── */
+@media(max-width:480px){
+  .sg{gap:8px}
+  .sc{min-width:140px;padding:14px}
+  .sc-val{font-size:20px}
+  .ncg{grid-template-columns:repeat(2,1fr)!important}
+  .content{padding:10px}
+  .top-title h1{font-size:13px}
+}
+
+
+@media(max-width:768px){
+  body{overflow:hidden}
+  .content{overflow-y:auto;-webkit-overflow-scrolling:touch}
+}
+
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-row">
+      <div class="sb-icon">N</div>
+      <div class="sb-name">NEX<em>BOARD</em></div>
+    </div>
+    <div class="sb-sub">Ekosistem NEXORA · Guru</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Utama</div>
+    <div class="sb-item on" data-sec="dashboard"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
+    <div class="sb-item" data-sec="siswa"><i class="ti ti-users"></i> Siswa <span class="sb-badge">30</span></div>
+    <div class="sb-item" data-sec="analitik"><i class="ti ti-chart-dots"></i> Analitik Kelas</div>
+    <div class="sb-sec">Monitoring</div>
+    <div class="sb-item" data-sec="mood"><i class="ti ti-mood-smile"></i> Mood Learning</div>
+    <div class="sb-item" data-sec="nexcard"><i class="ti ti-cards"></i> NexCard <span class="sb-badge gr">142</span></div>
+    <div class="sb-item" data-sec="nexbot"><i class="ti ti-robot"></i> NexBot Log <span class="sb-badge rd">3</span></div>
+    <div class="sb-sec">Administrasi</div>
+    <div class="sb-item" data-sec="laporan"><i class="ti ti-file-report"></i> Laporan & Jurnal</div>
+    <div class="sb-item" data-sec="rekomendasi"><i class="ti ti-bulb"></i> Rekomendasi AI</div>
+    <div class="sb-item" data-sec="kalender"><i class="ti ti-calendar"></i> Kalender Kelas</div>
+    <div class="sb-item" data-sec="pengaturan"><i class="ti ti-settings"></i> Pengaturan</div>
+  </nav>
+  <div class="sb-user">
+    <div class="sb-ava">BS</div>
+    <div><div class="sb-uname">Bu Sari Wulandari</div><div class="sb-urole">Guru Kelas V-A</div></div>
+    <div class="sb-dot" title="Online"></div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+  <!-- TOPBAR -->
+  <header class="top">
+    <div class="top-title">
+      <h1 id="pg-title">Dashboard Guru</h1>
+      <p id="pg-sub">Jumat, 12 Juni 2026 · Kelas V-A · 30 siswa terdaftar</p>
+    </div>
+    <div class="top-search"><i class="ti ti-search"></i><input placeholder="Cari siswa, materi..."></div>
+    <div class="top-btn" title="Pesan orang tua"><i class="ti ti-message-2"></i><div class="bdot"></div></div>
+    <div class="top-btn" id="notif-btn" title="Notifikasi" onclick="toggleNotif()"><i class="ti ti-bell"></i><div class="bdot"></div></div>
+    <div class="top-btn" title="Bantuan"><i class="ti ti-help"></i></div>
+  </header>
+
+  <!-- NOTIF DROPDOWN -->
+  <div class="notif-panel" id="notif-panel">
+    <div class="np-hd"><div class="np-title"><i class="ti ti-bell"></i> Notifikasi</div><div class="np-all">Tandai semua dibaca</div></div>
+    <div class="np-item"><div class="np-ico" style="background:var(--red-lt);color:var(--red)"><i class="ti ti-alert-triangle"></i></div><div><div class="np-txt"><b>Rizky Setiawan</b> belum login 2 hari berturut-turut</div><div class="np-tm">10 menit lalu</div></div></div>
+    <div class="np-item"><div class="np-ico" style="background:var(--green-lt);color:var(--green)"><i class="ti ti-trophy"></i></div><div><div class="np-txt"><b>Fara Nugraha</b> meraih badge Bintang Bahasa</div><div class="np-tm">25 menit lalu</div></div></div>
+    <div class="np-item"><div class="np-ico" style="background:var(--blue-lt);color:var(--blue)"><i class="ti ti-notebook"></i></div><div><div class="np-txt">Jurnal baru dari <b>Ayah Arini</b></div><div class="np-tm">1 jam lalu</div></div></div>
+    <div class="np-item"><div class="np-ico" style="background:var(--amber-lt);color:var(--amber)"><i class="ti ti-clock"></i></div><div><div class="np-txt">Pengumpulan laporan bulanan <b>dalam 3 hari</b></div><div class="np-tm">Hari ini</div></div></div>
+  </div>
+
+  <!-- MODAL DETAIL SISWA -->
+  <div class="modal-ov" id="modal-ov" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-hd">
+        <div class="modal-title" id="modal-title">Detail Siswa</div>
+        <div class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></div>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+<div class="content">
+
+<!-- ════ DASHBOARD ════ -->
+  <div class="sec on" id="sec-dashboard">
+    <div class="ptabs">
+      <div class="ptab on" onclick="ptab(this)">Overview</div>
+      <div class="ptab" onclick="ptab(this)">Hari Ini</div>
+      <div class="ptab" onclick="ptab(this)">Mingguan</div>
+    </div>
+
+    <div class="alert" id="alert-banner">
+      <i class="ti ti-alert-triangle"></i>
+      <span><b>3 siswa</b> menunjukkan penurunan motivasi — Rizky S., Budi P., Lina M. Perhatian segera diperlukan.</span>
+      <span class="alert-x" onclick="this.parentElement.remove()"><i class="ti ti-x"></i></span>
+    </div>
+
+    <div class="sg">
+      <div class="sc">
+        <div class="sc-top">
+          <div class="sc-ico" style="background:var(--blue-lt);color:var(--blue)"><i class="ti ti-users"></i></div>
+          <span class="sc-badge up"><i class="ti ti-trending-up"></i>93%</span>
+        </div>
+        <div class="sc-val" id="c-aktif">0</div>
+        <div class="sc-lbl">Siswa aktif hari ini</div>
+        <div class="sc-bar"><div class="sc-fill" style="background:var(--blue);width:0" data-w="93"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-top">
+          <div class="sc-ico" style="background:var(--green-lt);color:var(--green)"><i class="ti ti-chart-line"></i></div>
+          <span class="sc-badge up"><i class="ti ti-trending-up"></i>+8%</span>
+        </div>
+        <div class="sc-val" id="c-capaian">0%</div>
+        <div class="sc-lbl">Rata-rata capaian materi</div>
+        <div class="sc-bar"><div class="sc-fill" style="background:var(--green);width:0" data-w="74"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-top">
+          <div class="sc-ico" style="background:var(--amber-lt);color:var(--amber)"><i class="ti ti-cards"></i></div>
+          <span class="sc-badge up"><i class="ti ti-trending-up"></i>+21</span>
+        </div>
+        <div class="sc-val" id="c-nexcard">0</div>
+        <div class="sc-lbl">NexCard diperoleh hari ini</div>
+        <div class="sc-bar"><div class="sc-fill" style="background:var(--gold);width:0" data-w="60"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-top">
+          <div class="sc-ico" style="background:var(--red-lt);color:var(--red)"><i class="ti ti-alert-circle"></i></div>
+          <span class="sc-badge wn"><i class="ti ti-minus"></i>Pantau</span>
+        </div>
+        <div class="sc-val" id="c-perhatian">0</div>
+        <div class="sc-lbl">Siswa perlu perhatian</div>
+        <div class="sc-bar"><div class="sc-fill" style="background:var(--red);width:0" data-w="10"></div></div>
+      </div>
+    </div>
+
+    <div class="g3">
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-chart-bar" style="color:var(--blue)"></i>Keterlibatan Minggu Ini</div><div class="pa"><i class="ti ti-download"></i>Ekspor</div></div>
+        <div style="position:relative;height:200px;width:100%"><canvas id="ch-engage"></canvas></div>
+      </div>
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-mood-smile" style="color:var(--gold)"></i>Mood Kelas Hari Ini</div></div>
+        <div class="moodg">
+          <div class="mcard"><div class="mcard-em">😊</div><div class="mcard-n">Senang</div><div class="mcard-c" style="color:var(--green)">14</div><div class="mcard-p">47%</div></div>
+          <div class="mcard"><div class="mcard-em">😐</div><div class="mcard-n">Fokus</div><div class="mcard-c" style="color:var(--blue)">8</div><div class="mcard-p">27%</div></div>
+          <div class="mcard"><div class="mcard-em">😴</div><div class="mcard-n">Lelah</div><div class="mcard-c" style="color:var(--amber)">5</div><div class="mcard-p">17%</div></div>
+          <div class="mcard"><div class="mcard-em">😑</div><div class="mcard-n">Bosan</div><div class="mcard-c" style="color:var(--red)">3</div><div class="mcard-p">10%</div></div>
+        </div>
+        <div style="position:relative;height:80px;width:100%"><canvas id="ch-mood-d"></canvas></div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-list" style="color:var(--navy)"></i>Progres Siswa</div><div class="pa" onclick="showSec('siswa')">Lihat semua <i class="ti ti-arrow-right"></i></div></div>
+        <div class="slist" id="home-slist"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="pnl" style="flex:1">
+          <div class="ph">
+            <div class="pt"><i class="ti ti-activity" style="color:var(--teal)"></i>Aktivitas Real-Time</div>
+            <div style="font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px;font-weight:600">
+              <i class="ti ti-circle-filled" style="font-size:8px;animation:pulse 2s infinite"></i>Live
+            </div>
+          </div>
+          <div class="afd" id="live-feed"></div>
+        </div>
+        <div class="pnl">
+          <div class="ph"><div class="pt"><i class="ti ti-trophy" style="color:var(--gold)"></i>Leaderboard</div><div class="pa">Minggu ini</div></div>
+          <div id="lb-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="pnl">
+        <div class="nbh">
+          <div class="nbava">🤖</div>
+          <div><div class="nbt">NexBot AI Assistant</div><div class="nbs">Analisis kelas real-time</div></div>
+          <div class="nblive">LIVE</div>
+        </div>
+        <div class="nbmsg">Berdasarkan data hari ini, <b>14 siswa (47%)</b> siap menerima materi baru. <b>Rekomendasi:</b> mulai dengan NexFlix Edu topik Pecahan untuk kelompok A & B, sementara kelompok C diberikan pengulangan adaptif di NexWorld level 2.</div>
+        <div class="nbrco">
+          <div class="nritem"><i class="ti ti-player-play" style="color:var(--blue)"></i>Aktifkan NexFlix Edu sesi Matematika Pecahan untuk 18 siswa siap belajar</div>
+          <div class="nritem"><i class="ti ti-alert-triangle" style="color:var(--amber)"></i>Rizky Setiawan butuh scaffolding — skor IPS 31%, belum ketuntasan</div>
+          <div class="nritem"><i class="ti ti-send" style="color:var(--teal)"></i>Kirim laporan perkembangan minggu ini ke orang tua Dika & Budi</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-s">Draft Laporan</button>
+          <button class="btn btn-p btn-full"><i class="ti ti-robot"></i>Tanya NexBot Sekarang</button>
+        </div>
+      </div>
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-chart-area" style="color:var(--purple)"></i>Distribusi Nilai</div></div>
+        <div style="position:relative;height:220px;width:100%"><canvas id="ch-dist"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ SISWA ════ -->
+  <div class="sec" id="sec-siswa">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div><h2 style="font-size:16px;font-weight:700">Manajemen Siswa</h2><p style="font-size:11.5px;color:var(--txt2);margin-top:2px">30 siswa terdaftar · Kelas V-A</p></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-s"><i class="ti ti-filter"></i>Filter</button>
+        <button class="btn btn-s"><i class="ti ti-download"></i>Ekspor</button>
+        <button class="btn btn-p"><i class="ti ti-user-plus"></i>Tambah Siswa</button>
+      </div>
+    </div>
+    <div class="pnl">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Siswa</th><th>Level</th><th>Capaian</th><th>Mood</th><th>Streak</th><th>XP</th><th>Status</th><th style="text-align:center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-siswa"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════ ANALITIK ════ -->
+  <div class="sec" id="sec-analitik">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Analitik Kelas</h2>
+    <div class="g4">
+      <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:var(--blue-lt);color:var(--blue)"><i class="ti ti-trending-up"></i></div><span class="sc-badge up">+6%</span></div><div class="sc-val">74%</div><div class="sc-lbl">Rata-rata Capaian</div></div>
+      <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:var(--green-lt);color:var(--green)"><i class="ti ti-flame"></i></div><span class="sc-badge up">+3</span></div><div class="sc-val">8.4</div><div class="sc-lbl">Rata-rata Streak</div></div>
+      <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:var(--purple-lt);color:var(--purple)"><i class="ti ti-cards"></i></div><span class="sc-badge up">+142</span></div><div class="sc-val">1.247</div><div class="sc-lbl">Total NexCard</div></div>
+      <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:var(--teal-lt);color:var(--teal)"><i class="ti ti-robot"></i></div></div><div class="sc-val">284</div><div class="sc-lbl">Sesi NexBot Minggu Ini</div></div>
+    </div>
+    <div class="g2">
+      <div class="pnl"><div class="ph"><div class="pt"><i class="ti ti-chart-line" style="color:var(--blue)"></i>Tren Capaian Bulanan</div></div><div style="position:relative;height:220px;width:100%"><canvas id="ch-monthly"></canvas></div></div>
+      <div class="pnl"><div class="ph"><div class="pt"><i class="ti ti-chart-pie" style="color:var(--purple)"></i>Nilai per Mata Pelajaran</div></div><div style="position:relative;height:220px;width:100%"><canvas id="ch-radar"></canvas></div></div>
+    </div>
+    <div class="pnl">
+      <div class="ph"><div class="pt"><i class="ti ti-chart-area" style="color:var(--teal)"></i>Keterlibatan 4 Minggu Terakhir</div></div>
+      <div style="position:relative;height:160px;width:100%"><canvas id="ch-4w"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ════ MOOD ════ -->
+  <div class="sec" id="sec-mood">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Mood Learning — Rekap Kelas V-A</h2>
+    <div class="g4">
+      <div class="sc" style="text-align:center"><div style="font-size:42px;margin-bottom:6px">😊</div><div class="sc-val" style="color:var(--green)">14</div><div class="sc-lbl">Siswa Senang (47%)</div></div>
+      <div class="sc" style="text-align:center"><div style="font-size:42px;margin-bottom:6px">😐</div><div class="sc-val" style="color:var(--blue)">8</div><div class="sc-lbl">Siswa Fokus (27%)</div></div>
+      <div class="sc" style="text-align:center"><div style="font-size:42px;margin-bottom:6px">😴</div><div class="sc-val" style="color:var(--amber)">5</div><div class="sc-lbl">Siswa Lelah (17%)</div></div>
+      <div class="sc" style="text-align:center"><div style="font-size:42px;margin-bottom:6px">😑</div><div class="sc-val" style="color:var(--red)">3</div><div class="sc-lbl">Siswa Bosan (10%)</div></div>
+    </div>
+    <div class="g2">
+      <div class="pnl"><div class="ph"><div class="pt"><i class="ti ti-chart-bar" style="color:var(--gold)"></i>Histori Mood 7 Hari</div></div><div style="position:relative;height:220px;width:100%"><canvas id="ch-mood-h"></canvas></div></div>
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-users" style="color:var(--navy)"></i>Detail Siswa per Mood</div></div>
+        <div id="mood-detail-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ NEXCARD ════ -->
+  <div class="sec" id="sec-nexcard">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">NexCard — Galeri Pencapaian</h2>
+    <div class="pnl" style="margin-bottom:16px">
+      <div class="ph"><div class="pt"><i class="ti ti-cards" style="color:var(--gold)"></i>Koleksi Kartu Kelas V-A</div><div style="font-size:12px;color:var(--txt2)">Total: <b>1.247 kartu</b> · 142 hari ini</div></div>
+      <div class="ncg" id="nexcard-gallery"></div>
+    </div>
+    <div class="g2">
+      <div class="pnl"><div class="ph"><div class="pt"><i class="ti ti-star" style="color:var(--gold)"></i>Top Kolektor</div></div><div id="top-collector"></div></div>
+      <div class="pnl"><div class="ph"><div class="pt"><i class="ti ti-chart-bar" style="color:var(--purple)"></i>NexCard per Mapel</div></div><div style="position:relative;height:200px;width:100%"><canvas id="ch-nexcard"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- ════ NEXBOT ════ -->
+  <div class="sec" id="sec-nexbot">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">NexBot Log — Interaksi AI Siswa</h2>
+    <div class="g2">
+      <div class="pnl">
+        <div class="nbh"><div class="nbava">🤖</div><div><div class="nbt">NexBot AI Live Feed</div><div class="nbs">Pertanyaan siswa hari ini</div></div><div class="nblive">LIVE</div></div>
+        <div id="nexbot-log" style="display:flex;flex-direction:column;gap:9px"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="g2" style="margin-bottom:0">
+          <div class="sc" style="padding:14px"><div style="font-size:22px;font-weight:800;color:var(--purple)">284</div><div style="font-size:11px;color:var(--txt2);margin-top:3px">Sesi minggu ini</div></div>
+          <div class="sc" style="padding:14px"><div style="font-size:22px;font-weight:800;color:var(--teal)">4.8</div><div style="font-size:11px;color:var(--txt2);margin-top:3px">Menit rata-rata</div></div>
+          <div class="sc" style="padding:14px"><div style="font-size:22px;font-weight:800;color:var(--green)">96%</div><div style="font-size:11px;color:var(--txt2);margin-top:3px">Pertanyaan terjawab</div></div>
+          <div class="sc" style="padding:14px"><div style="font-size:22px;font-weight:800;color:var(--amber)">12</div><div style="font-size:11px;color:var(--txt2);margin-top:3px">Siswa aktif NexBot</div></div>
+        </div>
+        <div class="pnl"><div class="ph"><div class="pt"><i class="ti ti-chart-bar" style="color:var(--purple)"></i>Sesi NexBot Minggu Ini</div></div><div style="position:relative;height:160px;width:100%"><canvas id="ch-nexbot"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ LAPORAN ════ -->
+  <div class="sec" id="sec-laporan">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Laporan & Jurnal Pedagogi</h2>
+    <div class="g2">
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-file-report" style="color:var(--blue)"></i>Buat Laporan Siswa</div></div>
+        <div class="fg"><label class="fl">Pilih Siswa</label><select class="fsel"><option>Arini Ramadhani</option><option>Dika Budiman</option><option>Fara Nugraha</option><option>Rizky Setiawan</option><option>Maya Widiani</option></select></div>
+        <div class="fg"><label class="fl">Periode Laporan</label><select class="fsel"><option>Juni 2026</option><option>Mei 2026</option><option>April 2026</option></select></div>
+        <div class="fg"><label class="fl">Evaluasi Pedagogi</label><textarea class="fta" placeholder="Tuliskan evaluasi perkembangan belajar siswa secara menyeluruh..."></textarea></div>
+        <div class="fg"><label class="fl">Gaya Belajar Teridentifikasi</label><select class="fsel"><option>Visual</option><option>Auditory</option><option>Kinestetik</option><option>Reading/Writing</option></select></div>
+        <div class="fg"><label class="fl">Sistem Pembelajaran Digunakan</label><select class="fsel"><option>NexFlix Edu + NexWorld</option><option>NexBot Scaffolding</option><option>Gamifikasi NexCard</option></select></div>
+        <div class="fg"><label class="fl">Catatan Khusus</label><textarea class="fta" placeholder="Hambatan belajar, kebutuhan khusus, prestasi menonjol..."></textarea></div>
+        <div class="fg"><label class="fl">Rekomendasi untuk Orang Tua</label><textarea class="fta" placeholder="Saran kegiatan belajar di rumah, buku bacaan, dll..."></textarea></div>
+        <div style="display:flex;gap:8px"><button class="btn btn-s">Simpan Draft</button><button class="btn btn-p btn-full"><i class="ti ti-send"></i>Kirim ke Orang Tua</button></div>
+      </div>
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-notebook" style="color:var(--teal)"></i>Jurnal Masuk dari Orang Tua</div><span class="pill p-in">3 baru</span></div>
+        <div id="jurnal-masuk" style="display:flex;flex-direction:column;gap:12px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ REKOMENDASI ════ -->
+  <div class="sec" id="sec-rekomendasi">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Rekomendasi Belajar — Berdasarkan AI Analytics</h2>
+    <div class="pnl" style="margin-bottom:16px">
+      <div class="nbh"><div class="nbava">🤖</div><div><div class="nbt">NexBot Analytics Engine</div><div class="nbs">Rekomendasi diperbarui otomatis setiap hari</div></div><div class="nblive">AUTO</div></div>
+      <div id="reko-list" style="display:flex;flex-direction:column;gap:12px"></div>
+    </div>
+  </div>
+
+  <!-- ════ KALENDER ════ -->
+  <div class="sec" id="sec-kalender">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Kalender Kelas V-A</h2>
+    <div class="g2">
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-calendar" style="color:var(--blue)"></i>Juni 2026</div></div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px">
+          <div class="calh">Min</div><div class="calh">Sen</div><div class="calh">Sel</div><div class="calh">Rab</div><div class="calh">Kam</div><div class="calh">Jum</div><div class="calh">Sab</div>
+        </div>
+        <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div>
+      </div>
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-calendar-event" style="color:var(--gold)"></i>Agenda Juni 2026</div><button class="btn btn-s" style="padding:5px 12px;font-size:11px"><i class="ti ti-plus"></i>Tambah</button></div>
+        <div id="agenda-list" style="display:flex;flex-direction:column;gap:9px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ PENGATURAN ════ -->
+  <div class="sec" id="sec-pengaturan">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:20px">Pengaturan Akun</h2>
+    <div class="g2">
+      <div class="pnl">
+        <div class="ph"><div class="pt"><i class="ti ti-user" style="color:var(--blue)"></i>Profil Akun</div></div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:16px;background:var(--bg);border-radius:12px">
+          <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#e8940f);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--navy)">BS</div>
+          <div><div style="font-size:14px;font-weight:700">Sari Wulandari, S.Pd.</div><div style="font-size:12px;color:var(--txt2);margin-top:3px">Guru Kelas V-A · SDN NEXORA 1</div><div style="font-size:11px;color:var(--green);margin-top:3px;display:flex;align-items:center;gap:4px"><i class="ti ti-circle-filled" style="font-size:8px"></i>Online</div></div>
+          <button class="btn btn-s" style="margin-left:auto;padding:7px 14px;font-size:11.5px">Ubah Foto</button>
+        </div>
+        <div class="fg"><label class="fl">Nama Lengkap</label><input class="fi" value="Sari Wulandari, S.Pd."></div>
+        <div class="fg"><label class="fl">Email</label><input class="fi" value="sari.wulandari@nexora.id"></div>
+        <div class="fg"><label class="fl">Kelas yang Diajar</label><input class="fi" value="V-A · SDN NEXORA 1"></div>
+        <div class="fg"><label class="fl">No. HP</label><input class="fi" value="+62 812-3456-7890"></div>
+        <button class="btn btn-p btn-full"><i class="ti ti-device-floppy"></i>Simpan Perubahan</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="pnl">
+          <div class="ph"><div class="pt"><i class="ti ti-bell" style="color:var(--gold)"></i>Notifikasi</div></div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px"><span>Aktivitas siswa</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px"><span>Jurnal orang tua</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px"><span>Peringatan motivasi turun</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px"><span>Laporan mingguan otomatis</span><label class="toggle"><input type="checkbox"><span class="tslider"></span></label></div>
+          </div>
+        </div>
+        <div class="pnl">
+          <div class="ph"><div class="pt"><i class="ti ti-palette" style="color:var(--purple)"></i>Tampilan</div></div>
+          <div class="fg"><label class="fl">Bahasa</label><select class="fsel"><option>Indonesia</option><option>English</option></select></div>
+          <div class="fg"><label class="fl">Zona Waktu</label><select class="fsel"><option>WIB (UTC+7)</option><option>WITA (UTC+8)</option><option>WIT (UTC+9)</option></select></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /content -->
+</main>
+
+
+<style>
+.toggle{position:relative;display:inline-block;width:42px;height:22px}
+.toggle input{opacity:0;width:0;height:0}
+.tslider{position:absolute;cursor:pointer;inset:0;background:var(--bg3);border-radius:22px;transition:.2s}
+.tslider:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+input:checked+.tslider{background:var(--blue)}
+input:checked+.tslider:before{transform:translateX(20px)}
+</style>
+
+<script src="../scripts/app-guru-page.js" defer></script>
+<script>
+// Tambah data-label ke sidebar items untuk bottom nav HP
+(function(){
+  const labels = {
+    'dashboard':'Home','siswa':'Siswa','analitik':'Analitik',
+    'mood':'Mood','nexcard':'Kartu','nexbot':'NexBot',
+    'laporan':'Laporan','rekomendasi':'AI','kalender':'Kalender','pengaturan':'Atur'
+  };
+  document.querySelectorAll('.sb-item[data-sec]').forEach(el=>{
+    const sec = el.dataset.sec;
+    if(labels[sec]) el.setAttribute('data-label', labels[sec]);
+  });
+})();
+</script>
+</body>
+</html>
+
+
+
+
